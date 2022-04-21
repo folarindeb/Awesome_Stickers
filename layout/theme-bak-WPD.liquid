@@ -1,0 +1,163 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ settings.text_direction }}">
+<head>{% include 'structuredDataV2' %}{% include 'SEO-Master' %}
+<script data-src="https://www.dwin1.com/19038.js" type="text/javascript" defer="defer"></script>
+  <meta name="facebook-domain-verification" content="5c3wpy3dkno2ra78jscn420je8ww7e" />
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="{{ settings.color_button }}">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="preconnect" href="https://cdn.shopify.com">
+  <link rel="preconnect" href="https://fonts.shopifycdn.com">
+  <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+  <link rel="dns-prefetch" href="https://ajax.googleapis.com">
+  <link rel="dns-prefetch" href="https://maps.googleapis.com">
+  <link rel="dns-prefetch" href="https://maps.gstatic.com">
+
+  {%- if settings.favicon != blank -%}
+    <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png" />
+  {%- endif -%}
+
+  {%- render 'seo-title' -%}
+
+  {%- if page_description -%}
+  <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
+
+  {%- render 'social-meta-tags' -%}
+
+  {%comment%}{{ content_for_header }}{%endcomment%}{%include "setbg"%}
+  <script>
+    var theme = {
+      stylesheet: "{{ 'theme.css' | asset_url }}",
+      template: {{ template | json }},
+      routes: {
+        home: "{{ routes.root_url }}",
+        cart: "{{ routes.cart_url }}",
+        cartAdd: "{{ routes.cart_add_url | append: '.js'}}",
+        cartChange: "{{ routes.cart_change_url }}"
+      },
+      strings: {
+        addToCart: {{ 'products.product.add_to_cart' | t | json }},
+        soldOut: {{ 'products.product.sold_out' | t | json }},
+        unavailable: {{ 'products.product.unavailable' | t | json }},
+        regularPrice: {{ 'products.general.regular_price' | t | json }},
+        salePrice: {{ 'products.general.sale_price' | t | json }},
+        stockLabel: {{ 'products.product.stock_label' | t: count: '[count]' | json }},
+        willNotShipUntil: {{ 'products.product.will_not_ship_until' | t: date: '[date]' | json }},
+        willBeInStockAfter: {{ 'products.product.will_be_in_stock_after' | t: date: '[date]' | json }},
+        waitingForStock: {{ 'products.product.waiting_for_stock' | t | json }},
+        cartItems: {{ 'cart.general.item_count' | t: count: '[count]' | json }},
+        cartConfirmDelete: {{ 'cart.general.delete_confirm' | t | json }},
+        cartTermsConfirmation: {{ 'cart.general.terms_confirm' | t | json }}
+      },
+      settings: {
+        dynamicVariantsEnable: true,
+        cartType: {{ settings.cart_type | json }},
+        moneyFormat: {{ shop.money_format | json }},
+        quickView: {{ settings.quick_shop_enable }},
+        hoverProductGrid: {{ settings.product_hover_image }},
+        themeName: 'Streamline',
+        themeVersion: "3.4.6"
+      }
+    };
+
+    document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+  </script>
+
+  {%- render 'css-variables' -%}
+  {%- render 'critical-css' -%}
+  {%- render 'load-css' -%}
+
+  <script src="{{ 'vendor-v3.js' | asset_url | split: '?' | first }}" defer="defer"></script>
+  {%- if shop.enabled_currencies.size > 1 -%}
+    <link rel="stylesheet" data-href="{{ 'currency-flags.css' | asset_url }}">
+  {%- endif -%}
+  <script src="{{ 'theme.min.js' | asset_url }}" defer="defer"></script>
+  {%- if request.page_type contains 'customers/' -%}
+    <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
+  {%- endif -%}
+ 
+{% include 'pagefly-header' %}
+ {% render 'minmaxify-head' %}
+{% capture boostersnippet %}{% include "booster-apps-common" %}{% endcapture %}{% unless boostersnippet contains "Liquid error" %}{{ boostersnippet }}{% endunless %}
+</head> 
+
+<body class="template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}{% if request.path == '/challenge' %} template-challange{% endif %}{% if settings.cart_type == 'sticky' and cart.item_count > 0 and template != 'cart' %} body--sticky-cart-open{% endif %}{% if cart.item_count > 0 %} cart-has-items{% endif %}" ontouchstart="return true;" data-transitions="{{settings.animate_page_transitions}}" data-animate_underlines="true" data-animate_images="{{ settings.animate_images }}" data-button_style="{{settings.button_style}}" data-type_product_capitalize="{{settings.type_product_capitalize}}" data-type_header_capitalize="{{settings.type_header_capitalize}}" data-product_image_scatter="{{settings.product_image_scatter}}" data-button_type_style="{{settings.button_type_style}}">
+  <div id="OverscrollLoader" class="overscroll-loader" aria-hidden="true">
+    <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon--full-color icon-loader--full-color"><path class="icon-loader__close" d="M19 17.61l27.12 27.13m0-27.12L19 44.74"/><path class="icon-loader__path" d="M40 90a40 40 0 1 1 20 0"/></svg>
+  </div>
+
+  <div class="root">
+
+    {%- if settings.animate_page_transitions -%}
+      <script>window.setTimeout(function() { document.body.className += " loaded"; }, 25);</script>
+    {%- endif -%}
+
+    {%- liquid
+      assign loader_size = settings.desktop_loader_width | append: 'x'
+      assign loader_size_mobile = settings.mobile_loader_width | append: 'x'
+    -%}
+
+    <div class="splash-screen">
+      {%- if settings.logo_loader_image != blank -%}
+        <div class="splash-screen__loader">
+          <img
+            class="loader-logo__img"
+            src="{{ settings.logo_loader_image | img_url: loader_size }}"
+            srcset="{{ settings.logo_loader_image | img_url: loader_size }} 1x, {{ settings.logo_loader_image | img_url: loader_size, scale: 2 }} 2x"
+            aria-hidden="true">
+        </div>
+      {%- else -%}
+        <span class="loader-text">{{ 'general.accessibility.loading' | t }}</span>
+      {%- endif -%}
+    </div>
+
+    <a class="in-page-link visually-hidden skip-link" href="#MainContent">{{ 'general.accessibility.skip_to_content' | t }}</a>
+
+    <div id="PageContainer" class="page-container">
+      <div class="transition-body">
+        {%- section 'header' -%}
+
+        <main class="main-content" id="MainContent">
+          {{ content_for_layout }}
+        </main>
+
+        {%- section 'social' -%}
+        {%- section 'footer' -%}
+      </div>
+    </div>
+
+    {%- section 'newsletter-popup' -%}
+
+    {%- render 'video-modal' -%}
+    {%- if settings.animate_page_transition_style == 'page-logo' -%}
+      <div class="loader-logo">
+        {%- if settings.logo_loader_image != blank -%}
+          <div class="splash-screen__loader">
+            <img
+              class="loader-logo__img"
+              src="{{ settings.logo_loader_image | img_url: loader_size }}"
+              srcset="{{ settings.logo_loader_image | img_url: loader_size }} 1x, {{ settings.logo_loader_image | img_url: loader_size, scale: 2 }} 2x"
+              aria-hidden="true">
+          </div>
+        {%- else -%}
+          <span class="loader-text">{{ 'general.accessibility.loading' | t }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+  <div id="ProductScreens"></div>
+  <div id="AvailabilityDrawer"></div>
+  {%- render 'photoswipe-template' -%}
+  {%- if settings.cart_type == 'drawer' -%}
+    {%- render 'cart-drawer' -%}
+  {%- endif -%}
+{% render 'preorder-now' %}
+  <!-- Start of HubSpot Embed Code -->
+  <script type="text/javascript" id="hs-script-loader" async defer data-src="//js-na1.hs-scripts.com/20283389.js"></script>
+<!-- End of HubSpot Embed Code -->
+  {{'source.js' | asset_url | script_tag }}{{ '//cdn.shopify.com/s/files/1/0194/1736/6592/t/1/assets/booster-page-speed-optimizer.js?23' | script_tag }}
+</body>
+</html>
