@@ -1,0 +1,406 @@
+{%- liquid
+  assign product = all_products[section.settings.featured_product]
+  assign current_variant = product.selected_or_first_available_variant
+
+  assign product_zoom_size = '1800x1800'
+  assign product_image_size = '620x'
+
+  case image_container_width
+    when 'small'
+      assign product_image_width = 'medium-up--two-fifths'
+      assign product_description_width = 'medium-up--three-fifths'
+      assign product_image_size = '480x'
+    when 'medium'
+      assign product_image_width = 'medium-up--one-half'
+      assign product_description_width = 'medium-up--one-half'
+      assign product_image_size = '620x'
+    when 'large'
+      assign product_image_width = 'medium-up--three-fifths'
+      assign product_description_width = 'medium-up--two-fifths'
+      assign product_image_size = '740x'
+  endcase
+-%}
+
+<div class="index-section">
+  <div id="ProductSection-{{ section.id }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="product"
+    data-variant-type="{{ section.settings.variant_type }}"
+    {%- if section.settings.inventory_enable -%}
+      data-inventory="true"
+      data-inventory-threshold="{{ section.settings.inventory_threshold }}"
+    {%- endif -%}
+    {%- if section.settings.inventory_transfers_enable -%}
+      data-incoming-inventory="true"
+    {%- endif -%}
+    data-video-style="{{ section.settings.product_video_style }}"
+    {%- if section.settings.product_image_type == 'stacked' -%}
+      data-images-stacked="true"
+    {%- endif -%}>
+
+    {%- render 'product-template-variables', product: product, current_variant: current_variant -%}
+
+    <div class="page-width">
+      <div class="grid">
+        <div class="grid__item medium-up--one-half">
+          {%- render 'product-images',
+            section_id: section.id,
+            product: product,
+            product_zoom_size: product_zoom_size,
+            product_image_size: product_image_size,
+            product_image_type: section.settings.product_image_type,
+            video_looping: section.settings.enable_video_looping,
+            video_style: section.settings.product_video_style
+          -%}
+        </div>
+
+        <div class="grid__item medium-up--one-half{% if section.settings.product_image_type == 'stacked' %} product-single__sticky{% endif %}">
+          <div class="product-single__meta">
+            {%- liquid
+              unless product.empty?
+                assign compare_at_price = current_variant.compare_at_price
+                assign price = current_variant.price
+                assign product_available = current_variant.available
+                assign product_title = product.title
+              else
+                assign compare_at_price = 1999
+                assign price = 1999
+                assign product_available = true
+                assign product_title = 'home_page.onboarding.product_title' | t
+              endunless
+            -%}
+
+            <div class="product-single__header small--text-center">
+
+              {%- if settings.vendor_enable -%}
+                <div class="product-single__vendor">
+                  {%- assign vendor_handle = product.vendor | handleize  -%}
+                  {%- if collections[vendor_handle] != empty -%}
+                    <a href="{{ routes.collections_url }}/{{ collections[vendor_handle].handle }}">
+                      {{ collections[vendor_handle].title }}
+                    </a>
+                  {%- else -%}
+                    {{ product.vendor | link_to_vendor }}
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              {%- if section.settings.sku_enable -%}
+                <p class="product-single__sku" data-sku>
+                  {%- if current_variant.sku -%}
+                    {{ current_variant.sku }}
+                  {%- endif -%}
+                </p>
+              {%- endif -%}
+
+              <div class="h1 product-single__title">
+                {{ product_title }}
+              </div>
+
+              {%- if settings.enable_product_reviews -%}
+                {%- assign review_link = product.url | within: collection | append: '#Reviews-' | append: product.id -%}
+                <a href="{{ review_link }}" class="product-single__review-link">
+                  <span class="shopify-product-reviews-badge" data-id="{{ product.id }}"></span>
+                </a>
+              {%- endif -%}
+
+              <div class="product-single__prices">
+
+                {%- if product.compare_at_price_max > product.price -%}
+                  {%- assign hide_sale_price = true -%}
+                  {%- if current_variant.compare_at_price -%}
+                    {%- assign hide_sale_price = false -%}
+                  {%- endif -%}
+                  <span
+                    class="visually-hidden"
+                    aria-hidden="{{ hide_sale_price }}"
+                    data-price-a11y>
+                      {{ 'products.general.regular_price' | t }}
+                  </span>
+                  <span class="{% if hide_sale_price %} hide{% endif %}" data-price-wrapper>
+                    <span class="product__price product__price--compare" data-product-price-compare>
+                      {%- if compare_at_price > price -%}
+                        {{ compare_at_price | money }}
+                      {%- endif -%}
+                    </span>
+                  </span>
+                  <span class="visually-hidden" data-compare-a11y>{{ 'products.general.sale_price' | t }}</span>
+                {%- else -%}
+                  <span class="visually-hidden" data-price-a11y>{{ 'products.general.regular_price' | t }}</span>
+                {%- endif -%}
+
+                <span
+                  class="product__price{% if compare_at_price > price %} sale-price{% endif %}"
+                  data-product-price>
+                  {{ price | money }}
+                </span>
+
+                {%- if section.settings.product_shipping_callout != blank -%}
+                  <span class="product__note">
+                    {{ section.settings.product_shipping_callout }}
+                  </span>
+                {%- endif -%}
+
+              </div>
+
+              <div data-product-unit-wrapper class="product__unit-price{% unless current_variant.unit_price_measurement %} hide{% endunless %}">
+                {%- capture unit_price_base_unit -%}
+                  {%- if current_variant.unit_price_measurement -%}
+                    {%- if current_variant.unit_price_measurement.reference_value != 1 -%}
+                      {{ current_variant.unit_price_measurement.reference_value }}
+                    {%- endif -%}
+                    {{ current_variant.unit_price_measurement.reference_unit }}
+                  {%- endif -%}
+                {%- endcapture -%}
+
+                {{ current_variant.unit_price | money }}/{{ unit_price_base_unit }}
+              </div>
+
+              {%- if section.settings.inventory_enable or section.settings.inventory_transfers_enable -%}
+                {%- assign variants_with_inventory_tracking = product.variants | where: 'inventory_management', 'shopify' -%}
+
+                <script>
+                  // Store inventory quantities in JS because they're no longer
+                  // available directly in JS when a variant changes.
+                  // Have an object that holds all potential products so it works
+                  // with quick view or with multiple featured products.
+                  window.inventories = window.inventories || {};
+                  window.inventories['{{section.id}}'] = {};
+                   {%- for variant in variants_with_inventory_tracking -%}
+                    window.inventories['{{section.id}}'][{{variant.id}}] = {
+                      'quantity': {{ variant.inventory_quantity | default: 0 }},
+                      'incoming': {{ variant.incoming | default: false | json }},
+                      'next_incoming_date': {{ variant.next_incoming_date | date: format: 'date' | json }}
+                    };
+                   {%- endfor -%}
+                </script>
+
+                {%- assign inventory_visible = false -%}
+                {%- if section.settings.inventory_enable and current_variant.inventory_management == 'shopify' -%}
+                  {%- if current_variant.inventory_quantity <= section.settings.inventory_threshold and current_variant.inventory_quantity >= 0 -%}
+                    {%- assign inventory_visible = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                {%- liquid
+                  if current_variant.inventory_quantity == 0 or current_variant.inventory_policy == 'continue'
+                    assign inventory_visible = false
+                  endif
+
+                  assign show_incoming = false
+                  if current_variant.incoming and inventory_visible == false and current_variant.inventory_quantity <= section.settings.inventory_threshold
+                    assign show_incoming = true
+                  endif
+                -%}
+
+                {%- if section.settings.inventory_enable -%}
+                  <p
+                    data-product-inventory
+                    class="product__inventory{% unless inventory_visible %} hide{% endunless %}"
+                    >
+                    {%- if current_variant.available -%}
+                      {{ 'products.product.stock_label' | t: count: current_variant.inventory_quantity }}
+                    {%- endif -%}
+                  </p>
+                {%- endif -%}
+
+                {%- if section.settings.inventory_transfers_enable -%}
+                  <div
+                    data-product-incoming-inventory
+                    class="product__inventory{% if inventory_visible %} hide{% endif %}">
+                    {%- if show_incoming == true -%}
+                      {%- if current_variant.next_incoming_date -%}
+                        {%- assign date = current_variant.next_incoming_date | date: format: 'date' -%}
+                        {%- if current_variant.available -%}
+                          {{ 'products.product.will_not_ship_until' | t: date: date }}
+                        {%- else -%}
+                          {{ 'products.product.will_be_in_stock_after' | t: date: date }}
+                        {%- endif -%}
+                      {%- else -%}
+                        {{ 'products.product.waiting_for_stock' | t }}
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+
+            </div>
+
+            {%- unless product.empty? -%}
+              {%- render 'product-form',
+                section_id: section.id,
+                product: product,
+                current_variant: current_variant,
+                variant_type: section.settings.variant_type,
+                variant_labels_enable: section.settings.variant_labels_enable,
+                quantity_enable: section.settings.quantity_enable,
+                enable_payment_button: section.settings.enable_payment_button
+              -%}
+            {%- endunless -%}
+
+            {%- if settings.trust_image != blank -%}
+              <div class="aos-animate trust-image" style="max-width: {{ settings.trust_image.width }}px;">
+                <div class="image-wrap " style="height: 0; padding-bottom: {{ 100 | divided_by: settings.trust_image.aspect_ratio }}%;">
+                  {%- assign img_url = settings.trust_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                  <img class="lazyload"
+                      data-src="{{ img_url }}"
+                      data-widths="[360, 540]"
+                      data-aspectratio="{{ settings.trust_image.aspect_ratio }}"
+                      data-sizes="auto"
+                      alt="{{ settings.trust_image.alt }}">
+                  <noscript>
+                    <img class="lazyloaded" src="{{ settings.trust_image | img_url: '540x' }}" alt="{{ settings.trust_image.alt }}">
+                  </noscript>
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.show_description -%}
+              {%- if settings.additional_content_style == 'expandable' -%}
+                {%- render 'product-additional-content', product: product, section_id: section.id -%}
+              {%- else -%}
+                {%- render 'product-additional-tabs', product: product, section_id: section.id -%}
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Featured product",
+    "settings": [
+      {
+        "type": "product",
+        "id": "featured_product",
+        "label": "Product"
+      },
+      {
+        "type": "header",
+        "content": "Media"
+      },
+      {
+        "type": "select",
+        "id": "product_image_type",
+        "label": "Image style",
+        "default": "stacked",
+        "options": [
+          {
+            "value": "stacked",
+            "label": "Stacked"
+          },
+          {
+            "value": "slider",
+            "label": "Fade"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_video_looping",
+        "label": "Enable video looping",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "product_video_style",
+        "label": "Video style",
+        "default": "muted",
+        "options": [
+          {
+            "value": "muted",
+            "label": "Video without sound"
+          },
+          {
+            "value": "unmuted",
+            "label": "Video with sound"
+          }
+        ],
+        "info": "Video with sound will not autoplay"
+      },
+      {
+        "type": "header",
+        "content": "Product settings"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_description",
+        "label": "Show description",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_payment_button",
+        "label": "Show dynamic checkout button",
+        "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+      },
+      {
+        "type": "text",
+        "id": "product_shipping_callout",
+        "label": "Callout text",
+        "info": "E.g. Free shipping + returns"
+      },
+      {
+        "type": "select",
+        "id": "variant_type",
+        "label": "Variant picker style",
+        "default": "button",
+        "options": [
+          {
+            "value": "button",
+            "label": "Buttons"
+          },
+          {
+            "value": "dropdown",
+            "label": "Dropdown"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "variant_labels_enable",
+        "label": "Show variant labels",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "sku_enable",
+        "label": "Show SKU"
+      },
+      {
+        "type": "checkbox",
+        "id": "inventory_enable",
+        "label": "Show inventory notice"
+      },
+      {
+        "type": "range",
+        "id": "inventory_threshold",
+        "label": "Inventory threshold",
+        "default": 10,
+        "min": 0,
+        "max": 20,
+        "step": 2
+      },
+      {
+        "type": "checkbox",
+        "id": "inventory_transfers_enable",
+        "label": "Show inventory transfer notice",
+        "info": "Learn how to create inventory transfers [here](https://help.shopify.com/en/manual/products/inventory/transfers/create-transfer)"
+      },
+      {
+        "type": "checkbox",
+        "id": "quantity_enable",
+        "label": "Show quantity field"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured product",
+        "category": "Product"
+      }
+    ]
+  }
+{% endschema %}

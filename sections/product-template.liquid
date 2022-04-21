@@ -1,0 +1,187 @@
+{%- render 'product-template',
+  product: product,
+  section_id: product.id,
+
+  product_shipping_callout: section.settings.product_shipping_callout,
+  image_container_width: section.settings.product_image_size,
+  product_image_type: section.settings.product_image_type,
+  product_zoom_enable: section.settings.product_zoom_enable,
+  variant_type: section.settings.variant_type,
+  variant_labels_enable: section.settings.variant_labels_enable,
+  sku_enable: section.settings.sku_enable,
+  quantity_enable: section.settings.quantity_enable,
+  inventory_enable: section.settings.inventory_enable,
+  inventory_threshold: section.settings.inventory_threshold,
+  inventory_transfers_enable: section.settings.inventory_transfers_enable,
+  surface_pickup_enable: section.settings.surface_pickup_enable,
+  enable_payment_button: section.settings.enable_payment_button,
+  social_enable: section.settings.social_enable,
+  video_looping: section.settings.enable_video_looping,
+  video_style: section.settings.product_video_style
+-%}
+
+{%- if settings.enable_product_reviews -%}
+  <div id="Reviews-{{ product.id }}" class="index-section product-reviews product-reviews--full">{% render 'preorder-now-collection-item', product: product %}
+    <div class="page-width">
+      <div id="shopify-product-reviews" data-id="{{product.id}}">{{ product.metafields.spr.reviews }}</div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Product pages",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Media"
+      },
+      {
+        "type": "select",
+        "id": "product_image_size",
+        "label": "Image size",
+        "default": "large",
+        "options": [
+          {
+            "value": "small",
+            "label": "Small"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "large",
+            "label": "Large"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_image_type",
+        "label": "Image style",
+        "default": "stacked",
+        "options": [
+          {
+            "value": "stacked",
+            "label": "Stacked"
+          },
+          {
+            "value": "slider",
+            "label": "Fade"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "product_zoom_enable",
+        "label": "Enable image zoom",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_video_looping",
+        "label": "Enable video looping",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "product_video_style",
+        "label": "Video style",
+        "default": "muted",
+        "options": [
+          {
+            "value": "muted",
+            "label": "Video without sound"
+          },
+          {
+            "value": "unmuted",
+            "label": "Video with sound"
+          }
+        ],
+        "info": "Video with sound will not autoplay"
+      },
+      {
+        "type": "header",
+        "content": "Product settings"
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_payment_button",
+        "label": "Show dynamic checkout button",
+        "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "product_shipping_callout",
+        "label": "Callout text",
+        "info": "E.g. Free shipping + returns"
+      },
+      {
+        "type": "select",
+        "id": "variant_type",
+        "label": "Variant picker style",
+        "default": "button",
+        "options": [
+          {
+            "value": "button",
+            "label": "Buttons"
+          },
+          {
+            "value": "dropdown",
+            "label": "Dropdown"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "variant_labels_enable",
+        "label": "Show variant labels",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "sku_enable",
+        "label": "Show SKU"
+      },
+      {
+        "type": "checkbox",
+        "id": "inventory_enable",
+        "label": "Show inventory notice"
+      },
+      {
+        "type": "range",
+        "id": "inventory_threshold",
+        "label": "Inventory threshold",
+        "default": 10,
+        "min": 0,
+        "max": 20,
+        "step": 2
+      },
+      {
+        "type": "checkbox",
+        "id": "inventory_transfers_enable",
+        "label": "Show inventory transfer notice",
+        "info": "Learn how to create inventory transfers [here](https://help.shopify.com/en/manual/products/inventory/transfers/create-transfer)"
+      },
+      {
+        "type": "checkbox",
+        "id": "quantity_enable",
+        "label": "Show quantity field"
+      },
+      {
+        "type": "checkbox",
+        "id": "surface_pickup_enable",
+        "label": "Enable pickup availability feature",
+        "info": "Learn how to setup this feature [here](https://help.shopify.com/en/manual/shipping/setting-up-and-managing-your-shipping/local-methods/local-pickup)"
+      },
+      {
+        "type": "checkbox",
+        "id": "social_enable",
+        "label": "Enable social sharing",
+        "default": true
+      }
+    ]
+  }
+{% endschema %}

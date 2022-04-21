@@ -1,0 +1,137 @@
+{%- if section.settings.filter_type != 'none' -%}
+  <div class="collection-filters">
+    {%- if section.settings.filter_type == 'groups' -%}
+      <div
+        class="collection-filter__wrapper"
+        data-section-id="{{ section.id }}"
+        data-section-type="collection-filter"
+        data-combine-tags="{{ section.settings.tags_combine }}">
+        {%- render 'collection-filters', location: 'CollectionFilter', section: section -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.filter_type == 'dropdown' or section.settings.collection_sort_enable -%}
+      <div class="collection-dropdowns">
+        {%- if section.settings.filter_type == 'dropdown' -%}
+          <div class="collection-dropdowns__item">
+            <label for="SortTags" class="hidden-label">{{ 'collections.filters.title_tags' | t }}</label>
+            <select name="SortTags" id="SortTags">
+              {%- if current_tags -%}
+                {%- if collection.handle -%}
+                  <option value="{{ routes.collections_url }}/{{ collection.handle }}">{{ 'collections.filters.all_tags' | t }}</option>
+                {%- elsif collection.current_type -%}
+                  <option value="{{ collection.current_type | url_for_type }}">{{ 'collections.filters.all_tags' | t }}</option>
+                {%- elsif collection.current_vendor -%}
+                  <option value="{{ collection.current_vendor | url_for_vendor }}">{{ 'collections.filters.all_tags' | t }}</option>
+                {%- endif -%}
+              {%- else -%}
+                {%- if current_tags contains tag -%}
+                  <option value="">{{ 'collections.filters.all_tags' | t }}</option>
+                {%- else -%}
+                  <option value="">{{ 'collections.filters.title_tags' | t }}</option>
+                {%- endif -%}
+              {%- endif -%}
+              {%- for tag in collection.all_tags -%}
+                {% if tag contains "_" %}{%- assign tag_starts_with = tag | slice: 0 -%}{% if tag_starts_with == "_" %}{% if tag_count %}{%- assign tag_count = tag_count | minus: 1 | at_least: 0 -%}{% endif %}{% continue %}{% endif %}{% endif %}
+                <option value="{{ routes.collections_url }}/{% if collection.handle != blank %}{{ collection.handle }}{% else %}all{% endif %}/{{ tag | handleize }}"{% if current_tags contains tag %} selected="selected"{% endif %}>{{ tag }}</option>
+              {%- endfor -%}
+            </select>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.collection_sort_enable -%}
+          <div class="collection-dropdowns__item">
+            {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+            <label for="SortBy" class="hidden-label">{{ 'collections.sorting.title' | t }}</label>
+            <select name="SortBy" id="SortBy" data-default-sortby="{{ collection.default_sort_by }}">
+              <option value="title-ascending"{% if sort_by == collection.default_sort_by %} selected="selected"{% endif %}>{{ 'collections.sorting.title' | t }}</option>
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value }}" {% if option.value == sort_by %}selected="selected"{% endif %}>{{ option.name }}</option>
+              {%- endfor -%}
+            </select>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+  {
+    "name": "Collection filter",
+    "max_blocks": 15,
+    "settings": [
+      {
+        "type": "select",
+        "id": "filter_type",
+        "label": "Filter mode",
+        "default": "groups",
+        "options": [
+          {
+            "value": "none",
+            "label": "Off"
+          },
+          {
+            "value": "dropdown",
+            "label": "All tag dropdown"
+          },
+          {
+            "value": "groups",
+            "label": "Tag groups"
+          }
+        ],
+        "info": "Add tag groups with the content area below"
+      },
+      {
+        "type": "checkbox",
+        "id": "tags_combine",
+        "label": "Enable tag combinations"
+      },
+      {
+        "type": "checkbox",
+        "id": "collection_sort_enable",
+        "label": "Show sort options"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "tags_group",
+        "name": "Tag group",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Tag Group"
+          },
+          {
+            "type": "textarea",
+            "id": "tag_list",
+            "label": "Tag list (one per line)",
+            "default": "First tag \nSecond tag \nThird tag",
+            "info": "Tags are case sensitive and must match your product tag exactly"
+          }
+        ]
+      },
+      {
+        "type": "color_group",
+        "name": "Color swatches",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Color"
+          },
+          {
+            "type": "textarea",
+            "id": "tag_list",
+            "label": "Swatch list (one per line)",
+            "default": "Burgundy \nHeather grey \nGreen",
+            "info": "Products must be tagged with their color in order to appear here. Tags are case sensitive and must match your product tag exactly. Ex: 'Heather grey'. [Learn how to set up swatches](https://archetypethemes.co/blogs/impulse/how-do-i-set-up-color-swatches)."
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
