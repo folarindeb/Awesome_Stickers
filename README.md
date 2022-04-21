@@ -1,2 +1,1 @@
-#Awesome_Stickers
- 
+Awesome Stickers is an e-commerce site selling stationery items
