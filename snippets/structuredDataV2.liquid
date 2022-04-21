@@ -1,0 +1,210 @@
+{% if template == "index" %}
+    <!-- ============================= stucturedDataV2 Start============================= -->
+    {%- if shop.metafields.structuredData.localStatus != "0" -%}
+        <script type="application/ld+json">
+        {
+            "@context": "http://www.schema.org",
+            "url": "https://{{ shop.domain }}"
+
+            {%- if shop.metafields.structuredData.businessType != "0" -%}
+            ,"@type":"{{shop.metafields.structuredData.businessType}}"
+            {%- else -%}
+            ,"@type":"WebSite"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.name != "0" -%}
+            ,"name":"{{shop.metafields.structuredData.name}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.logo != "0" -%}
+            ,"logo":"{{shop.metafields.structuredData.logo}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.image != "0" -%}
+            ,"image":"{{shop.metafields.structuredData.image}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.email != "0" -%}
+            ,"email":"{{shop.metafields.structuredData.email}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.priceRange != "0" -%}
+            ,"priceRange":"{{shop.metafields.structuredData.priceRange}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.description != "0" -%}
+            ,"description":"{{shop.metafields.structuredData.description}}"
+            {%- endif -%}
+
+            
+            {%- if shop.metafields.structuredData.telephone != "0" -%}
+            ,"telephone": "{{shop.metafields.structuredData.telephone}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.brandAddressSwitch == "1" -%}
+            ,"address":{
+                "@type": "PostalAddress"
+                {%- if shop.metafields.structuredData.addressLocality != "0" -%}
+                ,"addressLocality": "{{shop.metafields.structuredData.addressLocality}}"
+                {%- endif -%}
+                {%- if shop.metafields.structuredData.postalCode != "0" -%}
+                ,"postalCode": "{{shop.metafields.structuredData.postalCode}}"
+                {%- endif -%}
+
+                {%- if shop.metafields.structuredData.streetAddress != "0" -%}
+                ,"streetAddress": "{{shop.metafields.structuredData.streetAddress}}"
+                {%- endif -%}
+            }
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.googleMapSwitch == "1" -%}
+                ,"geo" :{
+                    "@type":"GeoCoordinates",
+                    "latitude": "{{shop.metafields.structuredData.latitude}}",
+                    "longitude": "{{shop.metafields.structuredData.longitude}}"
+                }
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.week_switch == "true" -%}
+                    ,"openingHoursSpecification":{{shop.metafields.structuredData.weeks}}
+            {%- endif -%}
+        }
+        </script>
+    {%- endif -%}
+
+    {%- if shop.metafields.structuredData.logoStatus != "0" -%}
+        <script type="application/ld+json">
+        {
+            "@context": "http://www.schema.org",
+            "url": "https://{{ shop.domain }}"
+            
+            ,"@type":"Organization"
+
+            {%- if shop.metafields.structuredData.name != "0" -%}
+            ,"name":"{{shop.metafields.structuredData.name}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.brand != "0" -%}
+            ,"brand":"{{shop.metafields.structuredData.brand}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.logo != "0" -%}
+            ,"logo":"{{shop.metafields.structuredData.logo}}"
+            {%- endif -%}
+            
+            {%- if shop.metafields.structuredData.sameAsSwitch == "1" -%}
+            ,"sameAs":{{shop.metafields.structuredData.sameAs}}
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.altBusinessName != "0" -%}
+            ,"alternateName":"{{shop.metafields.structuredData.altBusinessName}}"
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.or_brandAddressSwitch == "1" -%}
+            ,"address":{
+                "@type": "PostalAddress"
+                {%- if shop.metafields.structuredData.or_addressLocality != "0" -%}
+                ,"addressLocality": "{{shop.metafields.structuredData.or_addressLocality}}"
+                {%- endif -%}
+                {%- if shop.metafields.structuredData.or_postalCode != "0" -%}
+                ,"postalCode": "{{shop.metafields.structuredData.or_postalCode}}"
+                {%- endif -%}
+
+                {%- if shop.metafields.structuredData.or_streetAddress != "0" -%}
+                ,"streetAddress": "{{shop.metafields.structuredData.or_streetAddress}}"
+                {%- endif -%}
+            }
+            {%- endif -%}
+
+            {%- if shop.metafields.structuredData.phoneContactSwitch == "1" -%}
+
+            ,"contactPoint": [
+                {%- if shop.metafields.structuredData.businessPhoneNumber != "0" -%}
+                    {
+                        "@type" : "ContactPoint",
+                        "telephone" : "{{shop.metafields.structuredData.businessPhoneNumber}}",
+                        "contactType" : "customer service",
+                        "contactOption" : "TollFree"
+                    },
+                {%- endif -%}
+
+                {%- if shop.metafields.structuredData.technicalPhoneNumber != "0" -%}
+                    {
+                        "@type" : "ContactPoint",
+                        "telephone" : "{{shop.metafields.structuredData.technicalPhoneNumber}}",
+                        "contactType" : "technical support",
+                        "contactOption" : "TollFree"
+                    },
+                {%- endif -%}
+
+                {%- if shop.metafields.structuredData.servicePhoneNumber != "0" -%}
+                    {
+                        "@type" : "ContactPoint",
+                        "telephone" : "{{shop.metafields.structuredData.servicePhoneNumber}}",
+                        "contactType" : "reservations",
+                        "contactOption" : "TollFree"
+                    },
+                {%- endif -%}
+
+                {%- if shop.metafields.structuredData.salesPhoneNumber != "0" -%}
+                    {
+                        "@type" : "ContactPoint",
+                        "telephone" : "{{shop.metafields.structuredData.salesPhoneNumber}}",
+                        "contactType" : "sales",
+                        "contactOption" : "TollFree"
+                    },
+                {%- endif -%}
+                ""
+            ]
+            {%- endif -%}
+        }
+        </script>
+    {%- endif -%}
+
+    <!-- ============================= stucturedDataV2 End============================= -->
+{%- endif -%}
+
+    {% if product and product.metafields.seo and product.metafields.seo.noindex > 0 %}
+    <meta name="robots" content="noindex">
+    {% endif %}
+    {% if product and product.metafields.seo and product.metafields.seo.nofollow > 0 %}
+    <meta name="robots" content="nofollow">
+    {% endif %}
+
+    {% if collection and collection.metafields.seo and collection.metafields.seo.noindex > 0 %}
+    <meta name="robots" content="noindex">
+    {% endif %}
+    {% if collection and collection.metafields.seo and collection.metafields.seo.nofollow > 0 %}
+    <meta name="robots" content="nofollow">
+    {% endif %}
+
+    {% if article and article.metafields.seo and article.metafields.seo.noindex > 0 %}
+    <meta name="robots" content="noindex">
+    {% endif %}
+    {% if article and article.metafields.seo and article.metafields.seo.nofollow > 0 %}
+    <meta name="robots" content="nofollow">
+    {% endif %}
+
+    {% if template contains "collection" and shop.metafields.channelwillSEOMeta.collectionAll_nofollow > 0 %}
+    <meta name="robots" content="nofollow">
+    {% endif %}
+    {% if template contains "collection" and shop.metafields.channelwillSEOMeta.collectionAll_noindex > 0 %}
+    <meta name="robots" content="noindex">
+    {% endif %}
+
+    {% if template == "index" and shop.metafields.channelwillSEOMeta.homePage_nofollow > 0 %}
+    <meta name="robots" content="nofollow">
+    {% endif %}
+    {% if template == "index" and shop.metafields.channelwillSEOMeta.homePage_noindex > 0 %}
+    <meta name="robots" content="noindex">
+    {% endif %}
+
+
+    {% if page and page.metafields.seo and page.metafields.seo.noindex > 0 %}
+    <meta name="robots" content="noindex">
+    {% endif %}
+    {% if page and page.metafields.seo and page.metafields.seo.nofollow > 0 %}
+    <meta name="robots" content="nofollow">
+    {% endif %}
+
+

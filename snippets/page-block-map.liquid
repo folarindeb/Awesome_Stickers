@@ -1,0 +1,75 @@
+{%- liquid
+  assign blockId = block.id
+  if product
+    assign blockId = block.id | append: product.id
+  endif
+
+  assign display_map = false
+  assign onboarding = false
+  assign bg_image = block.settings.background_image
+
+  if block.settings.api_key == blank and bg_image == blank
+    assign onboarding = true
+  endif
+  if block.settings.api_key != blank and block.settings.map_address
+    assign display_map = true
+  endif
+-%}
+
+<script>
+  theme.strings.addressError = {{ 'sections.map.address_error' | t | json }};
+  theme.strings.addressNoResults = {{ 'sections.map.address_no_results' | t | json }};
+  theme.strings.addressQueryLimit = {{ 'sections.map.address_query_limit_html' | t | json }};
+  theme.strings.authError = {{ 'sections.map.auth_error_html' | t | json }};
+</script>
+
+{%- if bg_image.src != blank -%}
+  {%- unless display_map -%}
+    {%- style -%}
+      .map-{{ blockId }} {
+        background-size: cover;
+        background-position: center;
+        background-image: url("{{ bg_image | img_url: '1800x' }}");
+        background-position: {{ block.settings.background_image_position | default: 'center center' }};
+      }
+
+      @media only screen and (max-width: 750px) {
+        .map-{{ blockId }} {
+          padding-top: {{ 1 | divided_by: bg_image.aspect_ratio | times: 100 }}%;
+        }
+      }
+    {%- endstyle -%}
+  {%- endunless -%}
+{%- endif -%}
+
+<div
+  class="map-section"
+  data-subsection
+  data-section-id="{{ blockId }}"
+  data-section-type="map"
+  data-aos="map-section__animation">
+  {%- if block.settings.title != blank or block.settings.address != blank -%}
+    <div class="map-section__overlay-wrapper">
+      <div class="map-section__overlay">
+        {%- if block.settings.map_title != blank -%}
+          <div class="h2">{{ block.settings.map_title | escape }}</div>
+        {%- endif -%}
+        {%- if block.settings.address != blank -%}
+          <div class="rte rte-setting">{{ block.settings.address }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+  <a class="map-section__link" href="https://www.google.com/maps/place/{{ block.settings.map_address | escape }}" target="_blank" rel="noopener" aria-label="{{ block.settings.map_address | escape }}"></a>
+  {%- if onboarding -%}
+    <div class="map-onboarding">
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+  {%- endif -%}
+  <div
+    id="Map-{{ blockId }}"
+    data-map
+    class="map-section__container map-{{ blockId }}"
+    data-address-setting="{{ block.settings.map_address | escape }}"
+    data-api-key="{{ block.settings.api_key }}"></div>
+</div>

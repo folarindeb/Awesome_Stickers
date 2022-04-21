@@ -1,0 +1,84 @@
+{%- liquid
+  assign overlap_images = true
+  if block.settings.image != blank and block.settings.image2 == blank
+    assign overlap_images = false
+  endif
+-%}
+
+<div class="page-width feature-row-wrapper">
+  {%- capture image_layout -%}
+    <div class="feature-row__item{% if overlap_images %} feature-row__item--overlap-images{% endif %}" style="max-width: {{ block.settings.image_width }}px" data-aos>
+      {%- if block.settings.image != blank -%}
+        <div>
+          {%- if block.settings.button_label != blank and block.settings.button_link != blank %}<a href="{{ block.settings.button_link }}">{%- endif -%}
+            <div class="image-wrap" style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;">
+              {%- assign img_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+              <img class="feature-row__image lazyload"
+                data-src="{{ img_url }}"
+                data-widths="[180, 360, 540, 750, 900, 1080]"
+                data-aspectratio="{{ block.settings.image.aspect_ratio }}"
+                data-sizes="auto"
+                alt="{{ block.settings.image.alt }}">
+            </div>
+          {%- if block.settings.button_label != blank and block.settings.button_link != blank %}</a>{%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if block.settings.image2 != blank -%}
+        <div>
+          {%- if block.settings.button_label != blank and block.settings.button_link != blank %}<a href="{{ block.settings.button_link }}">{%- endif -%}
+            <div class="image-wrap" style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image2.aspect_ratio }}%;">
+              {%- assign img_url = block.settings.image2 | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+              <img class="feature-row__image lazyload"
+                data-src="{{ img_url }}"
+                data-widths="[180, 360, 540, 750, 900, 1080]"
+                data-aspectratio="{{ block.settings.image2.aspect_ratio }}"
+                data-sizes="auto"
+                alt="{{ block.settings.image2.alt }}">
+            </div>
+          {%- if block.settings.button_label != blank and block.settings.button_link != blank %}</a>{%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if block.settings.image == blank and block.settings.image2 == blank -%}
+        <div>
+          <div class="image-wrap">
+            {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        </div>
+        <div>
+          <div class="image-wrap">
+            {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+
+  <div class="feature-row">
+    {%- if block.settings.layout == 'left' -%}
+      {{ image_layout }}
+    {%- endif -%}
+
+    <div class="feature-row__item text-center feature-row__text feature-row__text--{{ block.settings.layout }}" data-aos>
+      {%- if block.settings.subtitle != blank -%}
+        <div class="subheading appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ block.settings.subtitle }}</div>
+      {%- endif -%}
+      {%- if block.settings.title != blank -%}
+        <div class="h1 appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ block.settings.title | escape }}</div>
+      {%- endif -%}
+      {%- if block.settings.text != blank -%}
+        <div class="rte appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ block.settings.text }}</div>
+      {%- endif -%}
+      {%- if block.settings.button_label != blank -%}
+        <div class="appear-delay{% cycle '','-1','-2','-3','-4' %}">
+          <a href="{{ block.settings.button_link }}" class="btn{% if block.settings.button_style == 'secondary' %} btn--tertiary{% endif %}">
+            {{ block.settings.button_label }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if block.settings.layout == 'right' -%}
+      {{ image_layout }}
+    {%- endif -%}
+  </div>
+</div>

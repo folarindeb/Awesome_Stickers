@@ -1,0 +1,112 @@
+{%- liquid
+  assign blockId = block.id
+  if product
+    assign blockId = block.id | append: product.id
+  endif
+
+  assign hero_text = false
+  if block.settings.title != blank or block.settings.subheading != blank or block.settings.link_text != blank
+    assign hero_text = true
+  endif
+-%}
+
+{%- style -%}
+.hero--{{ blockId }} .hero__title {
+  font-size: {{ block.settings.title_size | times: 0.6 }}px;
+}
+@media only screen and (min-width: 769px) {
+  .hero--{{ blockId }} .hero__title {
+    font-size: {{ block.settings.title_size }}px;
+  }
+}
+{%- endstyle -%}
+
+<div
+  data-subsection
+  data-section-id="{{ blockId }}"
+  data-section-type="video-section"
+  class="video-parent-section hero hero--{{ blockId }} hero--{{ block.settings.section_height }} hero--mobile--{{ block.settings.mobile_height }}"
+  data-aos="hero__animation">
+
+  <div class="hero__media hero__media--{{ blockId }}{% if hero_text %} hero__media--overlay{% endif %}">
+
+    {%- if block.settings.video_url contains 'youtube.com/watch' -%}
+      {%- assign video_id = block.settings.video_url | split: 'v=' -%}
+      {%- assign video_id = video_id[1] | split: '&' | first -%}
+      <div
+        id="YouTubeVideo-{{ blockId }}"
+        data-video-id="{{ video_id }}"></div>
+    {%- endif -%}
+
+    {%- if block.settings.video_url contains 'youtu.be/' -%}
+      {%- assign video_id = block.settings.video_url | split: '.be/' -%}
+      {%- assign video_id = video_id[1] | split: '&' | first -%}
+      <div
+        id="YouTubeVideo-{{ blockId }}"
+        data-video-id="{{ video_id }}"></div>
+    {%- endif -%}
+
+    {%- if block.settings.video_url contains 'vimeo.com' -%}
+      {%- assign video_id = block.settings.video_url | split: '.com/' -%}
+      {%- assign video_id = video_id[1] | split: '/' | first -%}
+      <div
+        id="Vimeo-{{ blockId }}"
+        data-video-id="{{ video_id }}"></div>
+    {%- endif -%}
+
+    {%- if block.settings.video_url contains '.mp4' or block.settings.video_ur-l contains '.MP4' %}
+      <video
+        id="Mp4Video-{{ blockId }}"
+        src="{{ block.settings.video_url }}"
+        loop muted playsinline autoplay></video>
+    {%- endif -%}
+
+  </div>
+
+  <div class="hero__text-wrap">
+    <div class="page-width">
+      <div class="hero__text-content {{ block.settings.text_align }}">
+
+        {%- if block.settings.video_url contains 'vimeo.com' -%}
+          <button type="button" id="VimeoTrigger-{{ blockId }}" class="vimeo-mobile-trigger medium-up--hide">
+            <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-play" viewBox="18.24 17.35 24.52 28.3"><path fill="#323232" d="M22.1 19.151v25.5l20.4-13.489-20.4-12.011z"/></svg>
+          </button>
+        {%- endif -%}
+
+        {%- if hero_text -%}
+          <div class="hero__text-shadow" data-aos>
+            {%- if block.settings.title != blank -%}
+              <h2 class="h1 hero__title appear-delay{% cycle '','-2','-4','-6','-8' %}">
+                {{ block.settings.title | newline_to_br }}
+              </h2>
+            {%- endif -%}
+            {%- if block.settings.subheading != blank or block.settings.link_text != blank -%}
+              {%- unless block.settings.subheading == blank -%}
+                <div class="hero__subtitle appear-delay{% cycle '','-2','-4','-6','-8' %}">
+                  {{ block.settings.subheading | escape }}
+                </div>
+              {%- endunless -%}
+              {%- if block.settings.link_text != blank -%}
+                {%- liquid
+                  assign link_href = block.settings.link
+                  if block.settings.link == blank
+                    assign link_href = block.settings.video_url
+                  endif
+                -%}
+                <div class="hero__link appear-delay{% cycle '','-2','-4','-6','-8' %}">
+                  <a href="{{ link_href }}" class="btn btn--inverse js-no-transition">
+                    {%- if link_href contains 'youtube.com/watch' or link_href contains 'youtu.be/' -%}
+                      <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-play" viewBox="18.24 17.35 24.52 28.3"><path fill="#323232" d="M22.1 19.151v25.5l20.4-13.489-20.4-12.011z"/></svg>
+                    {%- endif -%}
+                    {{ block.settings.link_text }}
+                  </a>
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+      </div>
+    </div>
+  </div>
+</div>

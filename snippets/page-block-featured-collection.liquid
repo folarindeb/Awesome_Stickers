@@ -1,0 +1,108 @@
+{%- liquid
+  assign paginate_by = block.settings.rows | times: block.settings.per_row_desktop
+
+  assign block_id = block.id
+  if product
+    assign block_id = block.id | append: product.id
+  endif
+
+  case block.settings.per_row_desktop
+    when 2
+      assign grid_large_width = 'medium-up--one-half'
+    when 3
+      assign grid_large_width = 'medium-up--one-third'
+    when 4
+      assign grid_large_width = 'medium-up--one-quarter'
+  endcase
+  assign per_row_mobile = block.settings.per_row_mobile
+  assign grid_small_width = 'grid-product--padded'
+
+  if block.settings.per_row_mobile contains '2'
+    assign per_row_mobile = 2
+    assign grid_small_width = 'small--one-half'
+  endif
+
+  assign collection = collections[block.settings.collection]
+  assign ajax_paginate = false
+-%}
+
+{%- capture grid_item_width -%}{{ grid_small_width }} {{ grid_large_width}}{%- endcapture -%}
+
+<div
+  id="CollectionSection-{{ block_id }}"
+  data-section-id="{{ block_id }}"
+  data-section-type="featured-collection"
+  data-scrollable="false"
+  data-product-sliders-mobile="{% if block.settings.per_row_mobile == '1' %}true{% else %}false{% endif %}"
+  data-paginate="{{ ajax_paginate }}"
+  data-paginate-by="{{ paginate_by }}"
+  data-collection-url="{{ collection.url }}"
+  data-collection-count="{{ collection.all_products_count }}"
+  data-aos>
+  {%- if block.settings.title != blank -%}
+    <div class="page-width">
+      <header class="section-header" data-aos>
+        <h2 class="section-header__title appear-delay">
+          {{ block.settings.title }}
+        </h2>
+      </header>
+    </div>
+  {%- endif -%}
+
+  <div class="page-width page-width--flush">
+    <div data-pagination-wrapper>
+      <div
+        class="grid grid--uniform grid--scattered-large-4 grid--scattered-small-{{ per_row_mobile }} appear-delay-2{% if block.settings.per_row_mobile == '2-flush' %} small--grid--flush{% endif %}"
+        data-product-container>
+
+        {%- if block.settings.collection == blank or collections[block.settings.collection].empty? or collections[block.settings.collection].products_count == 0 -%}
+
+          {%- liquid
+            unless emptyState
+              assign emptyState = true
+            endunless
+          -%}
+
+          {%- for i in (1..paginate_by) -%}
+            <div class="grid__item grid-product {{ grid_item_width }}">
+              <div class="grid-product__content">
+                <a href="#" class="grid-product__link{% if sold_out %} grid-product__link--disabled{% endif %}">
+                  <div class="product-slider"
+                    data-image-count="1"
+                    data-id="1234">
+                    <div class="product-slide aos-animate">
+                      {%- capture current -%}{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+                      <div class="image-wrap">{{ 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}</div>
+                    </div>
+                  </div>
+                  <div class="grid-product__meta">
+                    <div class="grid-product__title">{{ 'home_page.onboarding.product_title' | t }}</div>
+                    <div class="grid-product__price">$29</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          {%- endfor -%}
+
+        {%- else -%}
+
+          {%- for product in collections[block.settings.collection].products limit: paginate_by -%}
+            {%- render 'product-grid-item'
+              product: product,
+              grid_item_width: grid_item_width
+            -%}
+          {%- endfor -%}
+
+        {%- endif -%}
+      </div>
+
+      {%- if block.settings.view_all -%}
+        <div class="text-center">
+          <a href="{{ collections[block.settings.collection].url }}" class="btn">
+            {{ 'collections.general.all_of_collection' | t }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,324 @@
+{% if customer %}
+{% assign selected_product = wcp_vd_discount.product %} 
+{% assign wcp_vd_Current_Prd_quantity  = 0 %}
+{% assign wcp_vd_current_variant = wcp_vd_discount.variant %}
+{% assign NextDiscountQty = 0 %}
+{% assign CurrentDiscount = 0 %} 
+{% assign ApplayVD = false %} 
+{% assign Temp_vd_wcp_v_price = wcp_v_price %}
+
+{% for CartItem in cart.items %} 
+	{% if CartItem.product_id == selected_product.id %}
+		{% assign wcp_vd_Current_Prd_quantity  = wcp_vd_Current_Prd_quantity | plus:CartItem.quantity%}
+	{% endif %} 
+{%endfor%}
+
+{% assign wcp_vd_v_price = wcp_v_price %}
+{% assign wcp_vd_price = wcp_price %}
+{% assign Tag = p_discount_tag %}
+{% assign Discount = p_discount_value %}
+{% assign CurrentDiscount = Discount %} 
+
+{% capture discount_key %}{{Tag}}-{{Discount}}{% endcapture %}
+
+{% if shop.metafields.wcp_vd[discount_key] contains selected_product.id %}
+
+	{% assign wcp_line_price = wcp_v_price | minus: 0 | times: wcp_vd_discount.quantity %}        
+	{% assign wcp_vd_meta_data = shop.metafields.wcp_vd[discount_key] %}
+	{% assign Master = wcp_vd_meta_data | split: '||' %}
+	{% assign Discount_Type = Master[0] %}
+	{% assign calculation_mode = Master[0] %}
+	{% assign vd_Ids = Master[1] %}
+	{% assign vd_Ids = vd_Ids |split: "^" %}
+
+	{% for vd_Id in vd_Ids %}
+
+		{% if vd_Id contains selected_product.id %}
+
+			{% assign Discounts_values_with_qty = vd_Id |split: "~~" %}
+			{% assign Discounts_values_with_qty = Discounts_values_with_qty[1] | split: "," %}
+			{% assign NextDiscountQty = Discounts_values_with_qty[0] %} 
+
+			{% for Discounts_value_with_qty in Discounts_values_with_qty %}
+
+				{% assign Qty_Discount = Discounts_value_with_qty | split: "-" %}	                       
+				{% assign RequireQty = Qty_Discount[0] | plus: 0 %}
+				{% assign ApplyDiscount = Qty_Discount[1] | plus: 0 %}	
+				{% assign Orignal_Price_To_ApplayDiscount = wcp_vd_current_variant.compare_at_price %}  
+
+				{% if wcp_vd_current_variant.compare_at_price == blank  or wcp_vd_current_variant.compare_at_price == 0 or wcp_vd_current_variant.compare_at_price < selected_product.price or shop.metafields.wcp_net.DiscountPriceRule  == '1' %}
+					{% assign Orignal_Price_To_ApplayDiscount = wcp_vd_current_variant.price %}
+				{% endif %}
+
+				{% if shop.metafields.wcp_net.IsOverrideIndividualPrice == "true" or shop.metafields.wcp_net.IsOverrideIndividualPrice == '1' %}
+					{% assign Orignal_Price_To_ApplayDiscount = wcp_vd_v_price %}                        
+				{% endif %}
+
+				{% case calculation_mode %}
+					{% when '0' %}
+						{% assign ApplyDiscount = Qty_Discount[1] | minus: 0 %}
+						{% assign wcp_vd_percentage = Qty_Discount[1] | minus: 0 %}
+					{% when '1' %}
+	                    {% assign wcp_vd_price_Off = Qty_Discount[1] |times: 100.0 %}                      
+	                    {%- assign wcp_vd_percentage = Orignal_Price_To_ApplayDiscount | minus: wcp_vd_price_Off | times: 100.0 | divided_by: Orignal_Price_To_ApplayDiscount  -%}                      
+	                    {% assign ApplyDiscount = 100 | minus: wcp_vd_percentage %}
+                    {% when '2' %}                      
+	                    {% assign wcp_vd_fixed_price = Qty_Discount[1] | times: 100.0 %}                      
+	                    {% assign wcp_vd_fixed_price = Orignal_Price_To_ApplayDiscount  | minus :wcp_vd_fixed_price %}                      
+	                    {%- assign wcp_vd_percentage = Orignal_Price_To_ApplayDiscount | minus: wcp_vd_fixed_price | times: 100.0 | divided_by: Orignal_Price_To_ApplayDiscount  -%}                      
+	                    {% assign ApplyDiscount = 100 | minus: wcp_vd_percentage %}                      
+                    {% else %}
+	                    {% assign ApplyDiscount = Qty_Discount[1] | minus: 0 %}
+	                    {% assign wcp_vd_percentage = Qty_Discount[1] | minus: 0 %}  
+                {% endcase %}
+
+				{% assign wcp_is_vd_discount_exceptions_rule = false %}
+				{% assign Tmp_ApplyDiscount = ApplyDiscount | divided_by: 100.00 %}
+				{% assign Tmp_ApplyDiscount = 1 | minus: Tmp_ApplyDiscount %}
+				{% assign wcp_vd_discount_price = Orignal_Price_To_ApplayDiscount | times:Tmp_ApplyDiscount | round:3 %}							
+
+				{% if wcp_vd_percentage > 100 or wcp_vd_percentage < 0 %}
+
+					{% assign wcp_is_vd_discount_exceptions_rule = true %}
+					{% assign wcp_price_for_calculation = wcp_vd_current_variant.compare_at_price %}
+
+					{% if wcp_vd_current_variant.compare_at_price == blank  or wcp_vd_current_variant.compare_at_price == 0 or wcp_vd_current_variant.compare_at_price < wcp_vd_current_variant.price or shop.metafields.wcp_net.DiscountPriceRule  == '1' %}
+						{% assign wcp_price_for_calculation = wcp_vd_current_variant.price %}
+					{% endif %}
+
+					{% assign wcp_vd_discount_exceptions_rule = shop.metafields.wcp_net.VD_Discount_Exceptions_Rule %}
+
+					{% case wcp_vd_discount_exceptions_rule %}
+                      	{% when '0' %}
+                      		{% assign wcp_discount_group_price = Temp_vd_wcp_v_price %}
+                      		{%- assign wcp_vd_percentage = wcp_price_for_calculation | minus: wcp_discount_group_price | times: 100.0 | divided_by: wcp_price_for_calculation  -%}     
+                      		{% assign wcp_vd_percentage = 100.0 | minus:wcp_vd_percentage %}      
+                      		{% assign wcp_vd_discount_price = wcp_discount_group_price %}      
+                      		{% assign ApplyDiscount =  wcp_vd_percentage %} 
+
+                      	{% when '1' %}                          
+                      		{% assign wcp_vd_percentage = 100.00  %}                     
+                      		{% assign wcp_vd_discount_price = 0.0 %}    
+                      		{% assign ApplyDiscount =  wcp_vd_percentage %}  
+                      {% when '2' %}                                                
+                      		{% assign wcp_vd_percentage = 0.0 %}                     
+                      		{% assign wcp_vd_discount_price = wcp_vd_current_variant.price %}                                                                
+                      		{% assign ApplyDiscount =  wcp_vd_percentage %}  
+                      {% else %}
+                      		{% assign wcp_discount_group_price = Temp_vd_wcp_v_price %}
+                      		{%- assign wcp_vd_percentage = wcp_price_for_calculation | minus: wcp_discount_group_price | times: 100.0 | divided_by: wcp_price_for_calculation -%}                      
+                      		{% assign wcp_vd_percentage = 100.0 | minus:wcp_vd_percentage %}                     
+                      		{% assign wcp_vd_discount_price = Temp_vd_wcp_v_price %}    
+                      		{% assign ApplyDiscount =  wcp_vd_percentage %}
+					{% endcase %}						
+				{% endif %}					
+
+				{% if  RequireQty <=  wcp_vd_Current_Prd_quantity %}		
+
+					{% assign ApplayVD = true %}
+					{% assign NextDiscountQty = Discounts_values_with_qty[forloop.index] %}								
+					{% assign CurrentDiscount = ApplyDiscount %}
+
+					{% if wcp_is_vd_discount_exceptions_rule == true %}	
+						{% assign wcp_v_price = wcp_vd_discount_price | floor %}
+						{% assign wcp_v_price1 = wcp_v_price  %}
+						{% assign wcp_line_price = wcp_v_price1 | times: wcp_vd_discount.quantity %}
+						{% assign wcp_line_price = wcp_line_price |  times: 100.00 %}
+					{% else %}
+						{% assign ApplyDiscount = ApplyDiscount | divided_by: 100.00 %}
+						{% assign ApplyDiscount = 1 | minus: ApplyDiscount %}
+						{% assign wcp_v_price = Orignal_Price_To_ApplayDiscount | times:ApplyDiscount | round: 3 %}	
+						{% assign wcp_v_price = wcp_v_price | floor %}
+						{% assign wcp_v_price1 = wcp_v_price  %}
+						{% assign wcp_line_price = wcp_v_price1 | times: wcp_vd_discount.quantity %}
+						{% assign wcp_line_price = wcp_line_price |  times: 100.00 %}
+
+					{% endif %}
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+{% assign NextDiscountQty= NextDiscountQty |split:"-" %}
+{% assign TmpDiscountQty = NextDiscountQty[0] | size %}
+{% assign TmpDiscoun = NextDiscountQty[1] | size %}
+
+{% if  TmpDiscountQty == 0 or  TmpDiscoun == 0 %}
+	{% capture NextDiscountHtml %}<p></p>{% endcapture %}
+{% else %}
+	{% assign MoreQty=NextDiscountQty[0] | minus:wcp_vd_Current_Prd_quantity %}
+	{% assign ApplyDiscount = NextDiscountQty[1] %}
+
+{% if ApplayVD == true %}
+	{% assign MoreDiscount = ApplyDiscount  | minus:CurrentDiscount %}
+{% else %}
+	{% assign MoreDiscount = ApplyDiscount %}
+{% endif %}
+
+{% assign  wcp_vd_percentage = 1 %}
+{% case calculation_mode %}
+	{% when '0' %}
+		{% if shop.metafields.wcp_net.IsOverrideIndividualPrice == "true" or shop.metafields.wcp_net.IsOverrideIndividualPrice == '1' %}			
+			{% assign ApplyDiscount = NextDiscountQty[1] | plus: 0 %}
+		{% else %}
+			{% assign ApplyDiscount = NextDiscountQty[1] | plus: 0 %}
+            {% assign temp_wcp_vd_table_v_price = wcp_vd_current_variant.price  %}
+            {% assign temp_wcp_vd_price_Off = wcp_vd_current_variant.price  %}
+			{%- assign wcp_vd_percentage = temp_wcp_vd_table_v_price | minus: temp_wcp_vd_price_Off | times: 100.0 | divided_by: temp_wcp_vd_table_v_price  -%} 
+            {%- assign wcp_vd_percentage = temp_wcp_vd_table_v_price | minus: temp_wcp_vd_price_Off | times: 100.0 | divided_by: temp_wcp_vd_table_v_price  -%}                      
+			{%- assign wcp_vd_percentage = temp_wcp_vd_table_v_price | minus: temp_wcp_vd_price_Off | times: 100.0 | divided_by: temp_wcp_vd_table_v_price  -%} 
+
+			{% assign wcp_calculated_value = ApplyDiscount | divided_by:100.0 %}
+			{% assign wcp_calculated_value = 1 | minus: wcp_calculated_value  %}
+			{% assign wcp_Netx_Discount_price = wcp_vd_current_variant.price  | times: wcp_calculated_value    %}
+            {% assign temp_wcp_v_price_0 = wcp_v_price  %}
+            {% assign temp_WCP_Price_diff_0 = wcp_Netx_Discount_price  %}
+
+			{% assign check_zero_value = temp_wcp_v_price_0 | minus:0 %}
+			{% if check_zero_value == 0 %}	
+				{% assign ApplyDiscount = temp_wcp_v_price_0  | minus: temp_WCP_Price_diff_0 | divided_by: 1.0 | round: 2 %}
+			{% else %}
+			 	{% assign ApplyDiscount = temp_wcp_v_price_0  | minus: temp_WCP_Price_diff_0 | times: 100.0 | divided_by: temp_wcp_v_price_0 | round: 2 %}
+			{% endif %}
+
+            {% assign MoreDiscount = ApplyDiscount %}
+		{% endif %}
+
+	{% when '1' %}
+		{% assign wcp_vd_price_Off = NextDiscountQty[1] | times: 100.0 %}         
+		{% assign wcp_vd_table_v_price = wcp_vd_current_variant.compare_at_price %}
+		
+		{% if wcp_vd_current_variant.compare_at_price == blank  or wcp_vd_current_variant.compare_at_price == 0 or wcp_vd_current_variant.compare_at_price < wcp_vd_current_variant.price or shop.metafields.wcp_net.DiscountPriceRule  == '1' %}
+			{% assign wcp_vd_table_v_price = wcp_vd_current_variant.price %}
+		{% endif %}
+		
+		{% if shop.metafields.wcp_net.IsOverrideIndividualPrice == "true" or shop.metafields.wcp_net.IsOverrideIndividualPrice == '1' %}
+			{% assign wcp_vd_table_v_price = Orignal_Price_To_ApplayDiscount %}
+		{% endif %}		
+
+		{% assign temp_wcp_vd_table_v_price = wcp_vd_table_v_price  %}
+		{% assign temp_wcp_vd_price_Off = wcp_vd_price_Off  %}
+
+		{%- assign wcp_vd_percentage = temp_wcp_vd_table_v_price | minus: temp_wcp_vd_price_Off | times: 100.0 | divided_by: temp_wcp_vd_table_v_price | round: 2 -%}                      
+		{% assign WCP_Price_diff = Orignal_Price_To_ApplayDiscount | minus: wcp_vd_price_Off %}
+
+		{% assign temp_wcp_v_price_1 = wcp_v_price  %}
+		{% assign temp_WCP_Price_diff_1 = WCP_Price_diff  %}
+
+		{% assign check_zero_value = temp_wcp_v_price_1 | minus:0 %}
+		{% if check_zero_value == 0 %}	
+			{% assign ApplyDiscount = temp_wcp_v_price_1  | minus: temp_WCP_Price_diff_1 | divided_by: 1.0 | round: 2 %}
+		{% else %}
+			{% assign ApplyDiscount = temp_wcp_v_price_1  | minus: temp_WCP_Price_diff_1 | times: 100.0 | divided_by: temp_wcp_v_price_1 | round: 2%}
+		{% endif %}
+
+		{% assign MoreDiscount = ApplyDiscount %}
+
+	{% when '2' %} 
+
+		{% assign wcp_vd_table_v_price = wcp_vd_current_variant.compare_at_price %}		
+		{% if wcp_vd_current_variant.compare_at_price == blank  or wcp_vd_current_variant.compare_at_price == 0 or wcp_vd_current_variant.compare_at_price < wcp_vd_current_variant.price or shop.metafields.wcp_net.DiscountPriceRule  == '1' %}
+			{% assign wcp_vd_table_v_price = wcp_vd_current_variant.price %}
+		{% endif %}
+		
+		{% if shop.metafields.wcp_net.IsOverrideIndividualPrice == "true" or shop.metafields.wcp_net.IsOverrideIndividualPrice == '1' %}
+			{% assign wcp_vd_table_v_price = Orignal_Price_To_ApplayDiscount %}
+		{% endif %}	
+
+		{% assign wcp_vd_fixed_price = NextDiscountQty[1] | times: 100.0 %}                      
+		{% assign wcp_vd_fixed_price = wcp_vd_table_v_price  | minus :wcp_vd_fixed_price %}                      
+		{%- assign wcp_vd_percentage = wcp_vd_table_v_price | minus: wcp_vd_fixed_price | times: 100.0 | divided_by: wcp_vd_table_v_price | round: 2 -%}                      
+
+		{% assign WCP_Price_diff = wcp_vd_table_v_price | minus: wcp_vd_fixed_price %}
+
+		{% assign temp_wcp_v_price_2 = wcp_v_price  %}
+		{% assign temp_WCP_Price_diff_2 = WCP_Price_diff  %}
+
+		{% assign check_zero_value = temp_wcp_v_price_2 | minus:0 %}
+		{% if check_zero_value == 0 %}	
+			{% assign ApplyDiscount = temp_wcp_v_price_2  | minus: temp_WCP_Price_diff_2 | divided_by: 1.0 | round: 2 %}
+		{% else %}
+			{% assign ApplyDiscount = temp_wcp_v_price_2  | minus: temp_WCP_Price_diff_2 | times: 100.0 | divided_by: temp_wcp_v_price_2 | round: 2 %}
+		{% endif %}
+
+		
+		{% assign MoreDiscount = ApplyDiscount %}                    
+	{% else %}
+		{% if shop.metafields.wcp_net.IsOverrideIndividualPrice == "true" or shop.metafields.wcp_net.IsOverrideIndividualPrice == '1' %}			
+			{% assign ApplyDiscount = NextDiscountQty[1] | plus: 0 %}
+		{% else %}
+			{% assign ApplyDiscount = NextDiscountQty[1] | plus: 0 %}
+            {% assign temp_wcp_vd_table_v_price = wcp_vd_current_variant.price %}
+            {% assign temp_wcp_vd_price_Off = wcp_vd_current_variant.price  %}
+
+            {%- assign wcp_vd_percentage = temp_wcp_vd_table_v_price | minus: temp_wcp_vd_price_Off | times: 100.0 | divided_by: temp_wcp_vd_table_v_price | round: 2 -%}                      
+			{% assign wcp_calculated_value = ApplyDiscount | divided_by:100.0 %}
+			{% assign wcp_calculated_value = 1 | minus: wcp_calculated_value  %}
+			{% assign wcp_Netx_Discount_price = wcp_vd_current_variant.price  | times: wcp_calculated_value    %}
+            {% assign temp_wcp_v_price_0 = wcp_v_price  %}
+            {% assign temp_WCP_Price_diff_0 = wcp_Netx_Discount_price  %}
+
+			{% assign check_zero_value = temp_wcp_v_price_0 | minus:0 %}
+			{% if check_zero_value == 0 %}	
+				{% assign ApplyDiscount = temp_wcp_v_price_0  | minus: temp_WCP_Price_diff_0 | divided_by: 1.0 | round: 2 %}
+			{% else %}
+			 	{% assign ApplyDiscount = temp_wcp_v_price_0  | minus: temp_WCP_Price_diff_0 | times: 100.0 | divided_by: temp_wcp_v_price_0 | round: 2 %}
+			{% endif %}
+           
+            {% assign MoreDiscount = ApplyDiscount %}
+		{% endif %}
+{% endcase %} 
+
+{% if wcp_vd_percentage > 100 or wcp_vd_percentage < 0 %}
+
+
+	{% assign wcp_price_for_calculation = wcp_vd_current_variant.compare_at_price %}
+	{% if wcp_vd_current_variant.compare_at_price == blank  or wcp_vd_current_variant.compare_at_price == 0 or wcp_vd_current_variant.compare_at_price < wcp_vd_current_variant.price or shop.metafields.wcp_net.DiscountPriceRule  == '1' %}
+		{% assign wcp_price_for_calculation = wcp_vd_current_variant.price %}
+	{% endif %}
+
+	{% assign wcp_vd_discount_exceptions_rule = shop.metafields.wcp_net.VD_Discount_Exceptions_Rule %}
+	{% case wcp_vd_discount_exceptions_rule %}
+		{% when '0' %} 
+			{% assign temp_wcp_v_price_for_cal = wcp_v_price  %}
+			{% assign temp_v_price_for_cal = Temp_vd_wcp_v_price   %}
+			{% assign check_zero_value = temp_wcp_v_price_for_cal |minus:0 %}
+
+			{% if check_zero_value == 0 %}		
+				{% assign MoreDiscount = temp_wcp_v_price_for_cal  | minus: temp_v_price_for_cal | divided_by: 1.0  %}     
+			{% else %}
+				{% assign MoreDiscount = temp_wcp_v_price_for_cal  | minus: temp_v_price_for_cal | times: 100.0 | divided_by: temp_wcp_v_price_for_cal  %}     
+			{% endif %}
+		{% when '1' %}                          
+			{% assign MoreDiscount = 100.00  %}                     			
+		{% when '2' %}	
+			{% assign temp_wcp_v_price_for_cal = wcp_v_price  %}
+			{% assign temp_v_price_for_cal = wcp_vd_current_variant.price   %}
+			
+			{% assign check_zero_value = temp_wcp_v_price_for_cal |minus:0 %}
+			{% if check_zero_value == 0 %}		
+				{% assign MoreDiscount = temp_wcp_v_price_for_cal  | minus: temp_v_price_for_cal  | divided_by: 1.0  %}
+			{% else %}
+				{% assign MoreDiscount = temp_wcp_v_price_for_cal  | minus: temp_v_price_for_cal  | times: 100.0 | divided_by: temp_wcp_v_price_for_cal  %}
+			{% endif %}			
+
+		{% else %}			
+			{% assign temp_wcp_v_price_for_cal = wcp_v_price  %}
+			{% assign temp_v_price_for_cal = Temp_vd_wcp_v_price   %}
+			{% assign check_zero_value = temp_wcp_v_price_for_cal |minus:0 %}
+
+			{% if check_zero_value == 0 %}		
+				{% assign MoreDiscount = temp_wcp_v_price_for_cal  | minus: temp_v_price_for_cal | divided_by: 1.0  %}     
+			{% else %}
+				{% assign MoreDiscount = temp_wcp_v_price_for_cal  | minus: temp_v_price_for_cal | times: 100.0 | divided_by: temp_wcp_v_price_for_cal  %}     
+			{% endif %}
+	{% endcase %}
+{% endif %}		
+
+{% assign MoreDiscount = MoreDiscount | round: 2  %}
+{% assign MSG=shop.metafields.wcp_net.VDMoreDiscountMsg | replace: "[qty]", MoreQty %}
+{% assign MSG=MSG | replace: "[percent]", MoreDiscount %}
+{% capture NextDiscountHtml %}<p class='wcp_netxDiscount'>{{MSG}}</p>{% endcapture %}
+{% endif %} 
+{% endif %} 

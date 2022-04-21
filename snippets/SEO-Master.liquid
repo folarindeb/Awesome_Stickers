@@ -1,0 +1,586 @@
+    <meta name="seomaster" content="true"/>
+    
+    {%- if shop.metafields.structuredData.searchStatus != "0" -%}
+        <script type="application/ld+json">
+        {
+            "@context": "http://schema.org",
+            "@type": "WebSite",
+            "url": "https://{{ shop.domain }}",
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "https://{{ shop.domain }}/search?q={query}"
+                },
+                "query-input": "required name=query"
+                }
+        }
+        </script>
+    {%endif%}
+
+
+    {%- if shop.metafields.structuredData.articleOn != "0" -%}
+        {% if template contains "article" %}
+        <script type="application/ld+json">
+            {
+                "@context" : "http://schema.org",
+                "@type" : "Article",
+                "about": "{{ article.content | strip_html | truncate: 110 }}",
+                "headline": "{{ article.content | strip_html | truncate: 110 }}",
+                "mainEntityOfPage" : "{{ shop.url | append: article.url }}",
+                "image": {
+                    "@type": "ImageObject",
+                    "url": "{{ article.image.src | img_url: "1024x1024" | prepend: "https:" }}",
+                    "width": 1024,
+                    "height": 1024
+                },
+                "url" : "{{ shop.url | append: article.url }}",
+                "dateModified": "{{ article.published_at }}",
+                "datePublished": "{{ article.published_at }}",
+                "dateCreated": "{{ article.created_at }}",
+                {%if article.excerpt != blank%}"description": "{{ article.excerpt | strip_html | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}",{%endif%}
+                "articleBody": "{{ article.content | strip_html | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}",
+                "author": {
+                    "@type": "Person",
+                    "name": "{{ article.author | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    {% if shop.metafields.structuredData.logo != blank %}
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "{{ shop.metafields.structuredData.logo }}"
+                    },
+                    {%endif%}  
+                    "name": "{{ shop.name | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"
+                }
+            }
+        </script>
+        {% endif %}
+    {% endif %}
+
+
+    {%- if shop.metafields.structuredData.blogOn != "0" -%}
+        {% if template contains "blog" %}
+        <script type="application/ld+json">
+            {
+                "@context" : "http://schema.org",
+                "@type" : "Blog",
+                "url": "{{ blog.url }}"
+                {%if blog.articles != blank%},
+                "blogPosts": [
+                    {%for article in blog.articles%}
+                    {
+                        "@context" : "http://schema.org",
+                        "@type" : "BlogPosting",
+                        "headline" : "{{ article.title | strip_newlines | strip_html | escape_once | replace: '\', '\\\\'  | truncate: 200}}",
+                        "mainEntityOfPage" : "{{ shop.url | append: article.url }}",
+                        "image": {
+                            "@type": "ImageObject",
+                            "url": "{{ article.image.src | img_url: "1024x1024" | prepend: "https:" }}",
+                            "width": 1024,
+                            "height": 1024
+                        },
+                        "url" : "{{ shop.url | append: article.url }}",
+                        "datePublished": "{{ article.published_at }}",
+                        "dateModified" : "{{ article.published_at }}",
+                        "dateCreated": "{{ article.created_at }}",
+                        {%if article.excerpt != blank%}"description": "{{ article.excerpt | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}",{%endif%}
+                        "author": {
+                            "@type": "Person",
+                            "name": "{{ article.author | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            {% if shop.metafields.structuredData.logo != blank %}
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "{{ shop.metafields.structuredData.logo }}"
+                            },
+                            {%endif%}                  
+                            "name": "{{ shop.name | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"
+                        }
+                    }
+                    {%unless forloop.last%},
+                    {%endunless%}
+                    {%endfor%}
+                {%endif%}
+                ]
+            }
+        </script>
+        {% endif %}
+    {% endif %}
+
+
+    {%- if shop.metafields.structuredData.collectionOn != "0" -%}
+    
+        {% if template contains "collection" %}
+            {%- assign days_product_price_valid_until = 10 | times: 86400 -%}
+            {%- assign girafflyIsBarCodeAvailable = false -%}
+            {%- assign girafflyIsValidGtinLength = false -%}
+            {%- assign girafflyGtinString = "gtin" -%}
+
+            {%- if product.selected_or_first_available_variant.barcode != blank -%}
+
+                {%- assign girafflyIsBarCodeAvailable = true -%}
+                {%- assign gtinStringLength = product.selected_or_first_available_variant.barcode | size -%}
+                {%- if gtinStringLength == 8 or gtinStringLength == 12 or gtinStringLength == 13 or gtinStringLength == 14 -%}
+                    {%- assign girafflyIsValidGtinLength = true -%}
+                    {%- assign girafflyGtinString = girafflyGtinString | append: gtinStringLength -%}
+                {%- endif -%}
+
+            {%- endif -%}
+
+            {%- assign girafflyHasReviews = false -%}
+            {%- assign girafflyReviewAppDescription = blank -%}
+            {%- assign girafflyRatingValue = blank -%}
+            {%- assign girafflyReviewCount = blank -%}
+            {%- if product.metafields.spr.reviews != blank and girafflyHasReviews == false -%}
+                {%- assign ratingValueReviewArray = product.metafields.spr.reviews | split: 'meta itemprop="girafflyRatingValue" content="' -%}
+                {%- assign ratingValueArr = ratingValueReviewArray[1] |split: '"' -%}
+                {%- assign girafflyReviewValue = ratingValueArr[0] -%}
+                {%- assign girafflyReviewsCountStrArray = product.metafields.spr.reviews | split: 'meta itemprop="girafflyReviewCount" content="' -%}
+                {%- assign girafflyReviewsCountArr = girafflyReviewsCountStrArray[1] | split: '"' -%}
+                {%- assign girafflyReviewsCount = girafflyReviewsCountArr[0] -%}
+                {%- unless girafflyReviewsCount == blank -%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Product Reviews By Shopify"' -%}
+                    {%- assign girafflyRatingValue = girafflyReviewValue -%}
+                    {%- assign girafflyReviewCount = girafflyReviewsCount -%}
+                {%- endunless -%}
+            {%- endif -%}
+
+            {%- if product.metafields.judgeme.badge != blank and girafflyHasReviews == false%}
+                {%- assign ratingValueReviewArray = product.metafields.judgeme.badge | split: "data-average-rating='" -%}
+                {%- assign ratingValueArr = ratingValueReviewArray[1] |split: "'" -%}
+                {%- assign girafflyReviewValue = ratingValueArr[0] -%}
+                {%- assign girafflyReviewsCountStrArray = product.metafields.judgeme.badge | split: "data-number-of-reviews='" -%}
+                {%- assign girafflyReviewsCountArr = girafflyReviewsCountStrArray[1] | split: "'" -%}
+                {%- assign girafflyReviewsCount = girafflyReviewsCountArr[0] -%}
+                {%- unless girafflyReviewsCount == '0' -%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Judge.me"' -%}
+                    {%- assign girafflyRatingValue = girafflyReviewValue -%}
+                    {%- assign girafflyReviewCount = girafflyReviewsCount -%}
+                {%- endunless -%}
+            {%- endif -%}
+
+            {%- if product.metafields.yotpo.reviews_count and product.metafields.yotpo.reviews_count != '0' and product.metafields.yotpo.reviews_count != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Yotpo"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.yotpo.reviews_average -%}
+                    {%- assign girafflyReviewCount = product.metafields.yotpo.reviews_count -%}
+            {%- elsif product.metafields.orankl.review_count and product.metafields.orankl.review_count != '0' and product.metafields.orankl.review_count != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Orankl"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.orankl.rating -%}
+                    {%- assign girafflyReviewCount = product.metafields.orankl.review_count -%}
+            {%- elsif product.metafields.loox.num_reviews and product.metafields.loox.num_reviews != '0' and product.metafields.loox.num_reviews != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Loox"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.loox.avg_rating -%}
+                    {%- assign girafflyReviewCount = product.metafields.loox.num_reviews -%}
+            {%- elsif product.metafields.ssw.count_rate and product.metafields.ssw.count_rate != '0' and product.metafields.ssw.count_rate != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By SocialShopWave"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.ssw.avg_rate -%}
+                    {%- assign girafflyReviewCount = product.metafields.ssw.count_rate -%}
+            {%- elsif product.metafields.vnreviews.girafflyReviewCount and product.metafields.vnreviews.girafflyReviewCount != '0' and product.metafields.vnreviews.girafflyReviewCount != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Trust"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.vnreviews.girafflyRatingValue -%}
+                    {%- assign girafflyReviewCount = product.metafields.vnreviews.girafflyReviewCount -%}
+            {%- elsif product.metafields.stamped.reviews_count and product.metafields.stamped.reviews_count != '0' and product.metafields.stamped.reviews_count != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Product Reviews By Stamped.io"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.stamped.reviews_average -%}
+                    {%- assign girafflyReviewCount = product.metafields.stamped.reviews_count -%}
+            {%- endif -%}
+
+            <script type="application/ld+json">
+                [
+                    {
+                        "@context" : "http://schema.org",
+                        "@type": "CollectionPage",
+                        "name": "{{ collection.title}}",
+                        "url": "{{ shop.url | append: collection.url }}",
+                        "image": "{{ collection.image | img_url: "master" }}"
+                    }
+                    {% if collection.title %}
+                    {% if collection.products != empty %},{% endif %}
+                    {% endif %}
+                    {% for product in collection.products %}
+                    {
+                        "@context" : "http://schema.org",
+                        "@type" : "Product",
+                        "name" : "{{ product.title | strip_newlines | strip_html | escape_once | replace: "\", "\\\\\\\\" }}",
+                        "image": "{{ product.featured_image.src | img_url: "master" | prepend : "https:" }}",
+                        "url" : "{{ shop.url | append: "/products/" | append: product.handle }}",
+                        {%- if girafflyIsBarCodeAvailable and girafflyIsValidGtinLength%}
+                        "{{girafflyGtinString}}": "{{product.selected_or_first_available_variant.barcode}}",
+                        "productId": "{{product.selected_or_first_available_variant.barcode}}",
+                        {%- elsif girafflyIsBarCodeAvailable%}
+                        "productId": "{{product.selected_or_first_available_variant.barcode}}",
+                        "mpn": "{{product.selected_or_first_available_variant.barcode}}",
+                        {%- endif%}
+
+                        "description" : "{{ product.description | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}",
+                        "brand": { "@type": "Brand","name": "{{ product.vendor | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"},
+                        "sku": "{{product.selected_or_first_available_variant.sku | replace: '"', ''}}",
+                        {%- if girafflyHasReviews and girafflyReviewAppDescription and girafflyRatingValue and girafflyReviewCount -%}
+                        "aggregateRating": {
+                            "@type": "AggregateRating",
+                            "description": {{ girafflyReviewAppDescription }},
+                            "RatingValue": "{{ girafflyRatingValue }}",
+                            "ReviewCount": "{{ girafflyReviewCount }}"
+                        },
+                        {%- endif%}
+                        "offers" : [
+                            {%for variant in product.variants -%}{
+                                "@type" : "Offer" ,
+                                {%- if girafflyIsBarCodeAvailable and girafflyIsValidGtinLength%}
+                                "{{girafflyGtinString}}": "{{variant.barcode}}",
+                                {%- elsif girafflyIsBarCodeAvailable%}
+                                "mpn": "{{variant.barcode}}",
+                                {%- endif%}
+                                "priceCurrency" : "{{ shop.currency }}" ,
+                                "priceValidUntil": "{{ 'now' | date: '%s' | plus: days_product_price_valid_until | date: '%Y-%m-%d'}}",
+                                "price" : "{{ variant.price | money_without_currency | split: "" | reverse | join: "" | remove_first: "00." | split: "" | reverse | join: "" | replace: ",", "" }}" ,
+                                "availability" : "http://schema.org/{%if variant.available%}InStock{%else%}OutOfStock{%endif%}" ,
+                                "itemCondition": "http://schema.org/NewCondition",
+                            {%- if variant.sku != blank%}
+                                "sku": "{{ variant.sku | replace: '"', ''}}",
+                            {%- endif -%}
+                            {%- if variant.title != "Default Title"%}
+                                "name": "{{ variant.title | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}",
+                            {%- endif%}
+                                "url" : "{{ shop.url | append: variant.url }}",
+                                "seller" : {
+                                    "@type" : "Organization",
+                                    "name" : "{{ shop.name | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"
+                                }
+                            }{%unless forloop.last%}, 
+                            {%endunless%}{%endfor%}
+                        ]
+                        
+                    }{% unless forloop.last %}, {% endunless %}
+                    {% endfor %}
+                ]
+            </script>
+        {% endif %}
+    {% endif %}
+
+
+
+
+    {%- if shop.metafields.structuredData.productOn != "0" -%}
+
+        {% if template contains "product" %}
+            {%- assign days_product_price_valid_until = 10 | times: 86400 -%}
+            {%- assign girafflyIsBarCodeAvailable = false -%}
+            {%- assign girafflyIsValidGtinLength = false -%}
+            {%- assign girafflyGtinString = "gtin" -%}
+
+            {%- if product.selected_or_first_available_variant.barcode != blank -%}
+
+                {%- assign girafflyIsBarCodeAvailable = true -%}
+                {%- assign gtinStringLength = product.selected_or_first_available_variant.barcode | size -%}
+                {%- if gtinStringLength == 8 or gtinStringLength == 12 or gtinStringLength == 13 or gtinStringLength == 14 -%}
+                    {%- assign girafflyIsValidGtinLength = true -%}
+                    {%- assign girafflyGtinString = girafflyGtinString | append: gtinStringLength -%}
+                {%- endif -%}
+
+            {%- endif -%}
+
+            {%- assign girafflyHasReviews = false -%}
+            {%- assign girafflyReviewAppDescription = blank -%}
+            {%- assign girafflyRatingValue = blank -%}
+            {%- assign girafflyReviewCount = blank -%}
+            {%- if product.metafields.spr.reviews != blank and girafflyHasReviews == false -%}
+                {%- assign ratingValueReviewArray = product.metafields.spr.reviews | split: 'meta itemprop="girafflyRatingValue" content="' -%}
+                {%- assign ratingValueArr = ratingValueReviewArray[1] |split: '"' -%}
+                {%- assign girafflyReviewValue = ratingValueArr[0] -%}
+                {%- assign girafflyReviewsCountStrArray = product.metafields.spr.reviews | split: 'meta itemprop="girafflyReviewCount" content="' -%}
+                {%- assign girafflyReviewsCountArr = girafflyReviewsCountStrArray[1] | split: '"' -%}
+                {%- assign girafflyReviewsCount = girafflyReviewsCountArr[0] -%}
+                {%- unless girafflyReviewsCount == blank -%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Product Reviews By Shopify"' -%}
+                    {%- assign girafflyRatingValue = girafflyReviewValue -%}
+                    {%- assign girafflyReviewCount = girafflyReviewsCount -%}
+                {%- endunless -%}
+            {%- endif -%}
+
+            {%- if product.metafields.judgeme.badge != blank and girafflyHasReviews == false%}
+                {%- assign ratingValueReviewArray = product.metafields.judgeme.badge | split: "data-average-rating='" -%}
+                {%- assign ratingValueArr = ratingValueReviewArray[1] |split: "'" -%}
+                {%- assign girafflyReviewValue = ratingValueArr[0] -%}
+                {%- assign girafflyReviewsCountStrArray = product.metafields.judgeme.badge | split: "data-number-of-reviews='" -%}
+                {%- assign girafflyReviewsCountArr = girafflyReviewsCountStrArray[1] | split: "'" -%}
+                {%- assign girafflyReviewsCount = girafflyReviewsCountArr[0] -%}
+                {%- unless girafflyReviewsCount == '0' -%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Judge.me"' -%}
+                    {%- assign girafflyRatingValue = girafflyReviewValue -%}
+                    {%- assign girafflyReviewCount = girafflyReviewsCount -%}
+                {%- endunless -%}
+            {%- endif -%}
+
+            {%- if product.metafields.yotpo.reviews_count and product.metafields.yotpo.reviews_count != '0' and product.metafields.yotpo.reviews_count != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Yotpo"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.yotpo.reviews_average -%}
+                    {%- assign girafflyReviewCount = product.metafields.yotpo.reviews_count -%}
+            {%- elsif product.metafields.orankl.review_count and product.metafields.orankl.review_count != '0' and product.metafields.orankl.review_count != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Orankl"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.orankl.rating -%}
+                    {%- assign girafflyReviewCount = product.metafields.orankl.review_count -%}
+            {%- elsif product.metafields.loox.num_reviews and product.metafields.loox.num_reviews != '0' and product.metafields.loox.num_reviews != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Loox"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.loox.avg_rating -%}
+                    {%- assign girafflyReviewCount = product.metafields.loox.num_reviews -%}
+            {%- elsif product.metafields.ssw.count_rate and product.metafields.ssw.count_rate != '0' and product.metafields.ssw.count_rate != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By SocialShopWave"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.ssw.avg_rate -%}
+                    {%- assign girafflyReviewCount = product.metafields.ssw.count_rate -%}
+            {%- elsif product.metafields.vnreviews.girafflyReviewCount and product.metafields.vnreviews.girafflyReviewCount != '0' and product.metafields.vnreviews.girafflyReviewCount != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Reviews By Trust"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.vnreviews.girafflyRatingValue -%}
+                    {%- assign girafflyReviewCount = product.metafields.vnreviews.girafflyReviewCount -%}
+            {%- elsif product.metafields.stamped.reviews_count and product.metafields.stamped.reviews_count != '0' and product.metafields.stamped.reviews_count != 0 and girafflyHasReviews == false%}
+                    {%- assign girafflyHasReviews = true -%}
+                    {%- assign girafflyReviewAppDescription = '"Product Reviews By Stamped.io"' -%}
+                    {%- assign girafflyRatingValue = product.metafields.stamped.reviews_average -%}
+                    {%- assign girafflyReviewCount = product.metafields.stamped.reviews_count -%}
+            {%- endif -%}
+
+            <script type="application/ld+json">
+            {
+                "@context": "http://schema.org",
+                "@type": "Product",
+                "brand": {
+                    "@type": "Brand",
+                    "name": {{ product.vendor | json }}
+                },
+                {%- if girafflyIsBarCodeAvailable and girafflyIsValidGtinLength%}
+                "{{girafflyGtinString}}": "{{product.selected_or_first_available_variant.barcode}}",
+                "productId": "{{product.selected_or_first_available_variant.barcode}}",
+                {%- elsif girafflyIsBarCodeAvailable%}
+                "productId": "{{product.selected_or_first_available_variant.barcode}}",
+                "mpn": "{{product.selected_or_first_available_variant.barcode}}",
+                {%- endif%}
+
+                {%- if product.selected_or_first_available_variant.sku != blank%}
+                "sku": "{{product.selected_or_first_available_variant.sku | replace: '"', ''}}",
+                {%- endif -%}
+
+                "description": {{ product.description | strip_html | json }},
+                "url":{{ canonical_url | json }},
+                "name": {{ product.title | json }},
+                {%- if product.featured_image -%}
+                "image": "https:{{ product.featured_image.src | img_url: "master" }}",
+                {%- endif -%}
+                {%- if product.selected_or_first_available_variant.weight != blank%}
+                "weight": "{{ product.selected_or_first_available_variant.weight | weight_with_unit | replace: " ", "" }}",
+                {%- endif -%}
+                {%- if girafflyHasReviews and girafflyReviewAppDescription and girafflyRatingValue and girafflyReviewCount -%}
+                "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "description": {{ girafflyReviewAppDescription }},
+                    "RatingValue": "{{ girafflyRatingValue }}",
+                    "ReviewCount": "{{ girafflyReviewCount }}"
+                },
+                {%- endif%}
+                "offers" : [
+                    {%for variant in product.variants -%}{
+                        "@type" : "Offer" ,
+                        {%- if girafflyIsBarCodeAvailable and girafflyIsValidGtinLength%}
+                        "{{girafflyGtinString}}": "{{variant.barcode}}",
+                        {%- elsif girafflyIsBarCodeAvailable%}
+                        "mpn": "{{variant.barcode}}",
+                        {%- endif%}
+                        "priceCurrency" : "{{ shop.currency }}" ,
+                        "priceValidUntil": "{{ 'now' | date: '%s' | plus: days_product_price_valid_until | date: '%Y-%m-%d'}}",
+                        "price" : "{{ variant.price | money_without_currency | split: "" | reverse | join: "" | remove_first: "00." | split: "" | reverse | join: "" | replace: ",", "" }}" ,
+                        "availability" : "http://schema.org/{%if variant.available%}InStock{%else%}OutOfStock{%endif%}" ,
+                        "itemCondition": "http://schema.org/NewCondition",
+                    {%- if variant.sku != blank%}
+                        "sku": "{{ variant.sku | replace: '"', ''}}",
+                    {%- endif -%}
+                    {%- if variant.title != "Default Title"%}
+                        "name": "{{ variant.title | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}",
+                    {%- endif%}
+                        "url" : "{{ shop.url | append: variant.url }}",
+                        "seller" : {
+                            "@type" : "Organization",
+                            "name" : "{{ shop.name | strip_newlines | strip_html | escape_once | replace: '\', '\\\\' }}"
+                        }
+                    }{%unless forloop.last%}, 
+                    {%endunless%}{%endfor%}
+                ]
+            }
+                </script>
+        {% endif %} 
+    {% endif %} 
+
+
+    {%- if shop.metafields.structuredData.breadStatus != "0" -%}
+        {%- assign position = 1 -%}
+        {%- assign breadcrumb_tags_item_name = current_tags | join: ' + ' -%}
+        {%- assign channelwill_current_tags_url_part = current_tags | join: '+' | downcase -%}
+
+        <script type="application/ld+json">
+            {
+                "@context": "http://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [{
+                    "@type": "ListItem",
+                    "position": {{ position }},
+                    "item": {
+                        "@type": "Website",
+                        "@id": "{{ shop.url }}",
+                        "name": "Home"
+                    }
+                }
+
+                {%- if article -%}
+
+                    {%- assign position = position | plus: 1 -%}
+                    ,{
+                        "@type": "ListItem",
+                        "position": {{ position }},
+                        "item": {
+                            "@type": "Blog",
+                            "@id":  "{{ shop.url | append: blog.url }}",
+                            "name": "{{ blog.title | escape_once }}"
+                        }
+                    }
+
+                    {%- assign position = position | plus: 1 -%}
+                    ,{
+                        "@type": "ListItem",
+                        "position": {{ position }},
+                        "item": {
+                            "@type": "Article",
+                            "@id": "{{ shop.url | append: article.url }}",
+                            "name": "{{ article.title | escape_once }}",
+                            "author": {
+                                "@type": "Person",
+                                "name": "{{ article.author }}"
+                            },
+                            "datePublished": "{{ article.published_at }}",
+                            "dateModified": "{{ article.published_at }}",
+                            "headline": "{{ article.title | truncate: 110 }}",
+                            "image": {
+                                "@type": "ImageObject",
+                                "url": "{{ article.image.src | img_url: "1024x1024" | prepend: "https:" }}",
+                                "width": 1024,
+                                "height": 1024
+                            },
+                            "publisher": {
+                                "@type": "Organization",
+                                {% if shop.metafields.structuredData.logo != blank %}
+                                    "logo": {
+                                        "@type": "ImageObject",
+                                        "url": "{{ shop.metafields.structuredData.logo }}"
+                                    },
+                                {%endif%}   
+                                "name": "{{ shop.name | escape_once }}"
+                            },
+                            "mainEntityOfPage" : "{{ shop.url | append: article.url }}"
+                        }
+                    }
+
+                {%- elsif blog and article == nil -%}
+
+                    {%- assign position = position | plus: 1 -%}
+                    ,{
+                        "@type": "ListItem",
+                        "position": {{ position }},
+                        "item": {
+                            "@type": "Blog",
+                            "@id":  "{{ shop.url | append: blog.url }}",
+                            "name": "{{ blog.title | escape_once }}"
+                        }
+                    }
+                    
+                    {%- if current_tags -%}
+
+                        {%- assign position = position | plus: 1 -%}
+                        ,{
+                            "@type": "ListItem",
+                            "position": {{ position }},
+                            "item": {
+                                "@type": "Blog",
+                                "@id":  "{{ shop.url | append: blog.url | append: '/' | append: channelwill_current_tags_url_part }}",
+                                "name": "{{ breadcrumb_tags_item_name }}"
+                            }
+                        }
+                    {%- endif -%}
+                    
+                {%- elsif product -%}
+
+                    {%- assign product_breadcrumb_url = shop.url | append: '/products/' | append: product.handle -%}
+
+                    {%- if collection and collection.url != blank -%}
+                        {%- assign position = position | plus: 1 -%}
+                        {%- assign product_breadcrumb_url = shop.url | append: collection.url | append: '/products/' | append: product.handle -%}
+
+                        ,{
+                            "@type": "ListItem",
+                            "position": {{ position }},
+                            "item": {
+                                "@type": "CollectionPage",
+                                "@id":  "{{ shop.url | append: collection.url }}",
+                                "name": "{{ collection.title | escape_once }}"
+                            }
+                        }
+                    {%- endif -%}
+
+                    {%- assign position = position | plus: 1 -%}
+                    ,{
+                        "@type": "ListItem",
+                        "position": {{ position }},
+                        "item": {
+                            "@type": "WebPage",
+                            "@id": "{{ product_breadcrumb_url }}",
+                            "name": "{{ product.title | escape_once }}"
+                        }
+                    }
+
+                {%- elsif collection and product == nil -%}
+
+                    {%- assign position = position | plus: 1 -%}
+                    ,{
+                        "@type": "ListItem",
+                        "position": {{ position }},
+                        "item": {
+                            "@type": "CollectionPage",
+                            "@id":  "{{ shop.url | append: collection.url }}",
+                            "name": "{{ collection.title | escape_once }}"
+                        }
+                    }
+                    
+                    {%- if current_tags -%}
+
+                        {%- assign position = position | plus: 1 -%}
+                        ,{
+                            "@type": "ListItem",
+                            "position": {{ position }},
+                            "item": {
+                                "@type": "CollectionPage",
+                                "@id":  "{{ shop.url | append: collection.url | append: '/' | append: channelwill_current_tags_url_part }}",
+                                "name": "{{ breadcrumb_tags_item_name }}"
+                            }
+                        }
+                    {%- endif -%}
+                    
+                {%- endif -%}
+            ]}
+        </script>
+    {% endif %} 
+

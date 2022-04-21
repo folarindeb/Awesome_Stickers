@@ -1,0 +1,16 @@
+
+{% assign domcontentloadeda = "document.addEventListener('DOMContentLoaded'" %}
+{% assign startasyncLoadinga= "document.addEventListener('StartAsyncLoading'" %} 
+{% assign domcontentloaded = 'e.addEventListener("DOMContentLoaded"' %}
+{% assign startasyncLoading= "e.addEventListener('StartAsyncLoading'" %}
+{% assign rapp = ", asyncLoad" %}{% assign napp= ", function(){}" %}
+{% assign rappload = "if(window.attachEvent)" %}
+{% assign nappload= "document.addEventListener('StartAsyncLoading',function(event){asyncLoad();});if(window.attachEvent)" %}
+{% assign rstorefrontload = "var customDocumentWrite = function(content)" %}
+{% assign nstorefrontload= "document.addEventListener('StartKernelLoading', function() { document.dispatchEvent(new CustomEvent('StartShopifyLoading')); var customDocumentWrite = function(content)" %}
+{% assign rstorefront = "document.getElementsByTagName('head')[0].appendChild(eventsListenerScript)" %}
+{% assign nstorefront= "document.getElementsByTagName('head')[0].appendChild(eventsListenerScript);})" %}
+{% if template == 'cart' %}{{ content_for_header | replace: 'src=', 'data-src=' | replace: domcontentloadeda, startasyncLoadinga  | replace: domcontentloaded, startasyncLoading | replace: rapp, napp  | replace: rappload, nappload }}
+{% else %} 
+{{ content_for_header | replace: 'src=', 'data-src=' | replace: domcontentloadeda, startasyncLoadinga  | replace: domcontentloaded, startasyncLoading | replace: rapp, napp  | replace: rappload, nappload | replace: rstorefrontload, nstorefrontload | replace: rstorefront, nstorefront }}{% endif %}
+	

@@ -1,0 +1,154 @@
+{%- liquid
+  assign blockId = block.id
+  if product
+    assign blockId = block.id | append: product.id
+  endif
+-%}
+
+<div
+  data-subsection
+  data-section-id="{{ blockId }}"
+  data-section-type="slideshow-section"
+  data-align-top="true"
+  class="hero-slideshow">
+  <div class="hero-wrapper">
+    {%- assign natural_height_ratio = '60%' -%}
+    {%- assign natural_height_ratio_mobile = '100%' -%}
+    {%- if block.settings.image != blank -%}
+      {%- capture natural_height_ratio -%}{{ 100 | divided_by: block.settings.image.aspect_ratio }}%{% endcapture %}
+      {%- assign natural_height_ratio_mobile = natural_height_ratio -%}
+    {%- endif -%}
+    {%- if block.settings.image_mobile != blank -%}
+      {%- capture natural_height_ratio_mobile -%}{{ 100 | divided_by: block.settings.image_mobile.aspect_ratio }}%{% endcapture %}
+    {%- endif -%}
+
+    {%- style -%}
+      .hero-natural--{{ blockId }} {
+        height: 0;
+        padding-bottom: {{ natural_height_ratio | plus: block.settings.desktop_size }}%;
+      }
+
+      @media screen and (max-width: 768px) {
+        .hero-natural--{{ blockId }} {
+          padding-bottom: {{ natural_height_ratio_mobile | plus: block.settings.mobile_size }}%;
+        }
+      }
+    {%- endstyle -%}
+
+    <div class="hero-natural--{{ blockId }}">
+      <div id="Slideshow-{{ blockId }}"
+        class="hero hero--{{ blockId }}"
+        data-natural="true"
+        data-aos="hero__animation"
+        data-slide-count="1">
+        <div
+          class="slideshow__slide slideshow__slide--{{ blockId }}"
+          data-id="{{ blockId }}">
+
+          {%- style -%}
+            .slideshow__slide--{{ blockId }} .hero__title {
+              font-size: {{ block.settings.title_size | times: 0.6 }}px;
+              line-height: 1.15;
+            }
+            .hero__image--{{ blockId }} {
+              object-position: {{ block.settings.focal_point }};
+            }
+            @media only screen and (min-width: 960px) {
+              .slideshow__slide--{{ blockId }} .hero__title {
+                font-size: {{ block.settings.title_size }}px;
+              }
+            }
+          {%- endstyle -%}
+
+          {%- liquid
+            assign hero_text = false
+            assign link_slide = false
+            if block.settings.title != blank or block.settings.subheading != blank or block.settings.link_text != blank
+              assign hero_text = true
+            endif
+            if block.settings.link_text == blank and block.settings.link != blank
+              assign link_slide = true
+            endif
+          -%}
+
+          <div class="hero__image-wrapper{% if hero_text %} hero__image-wrapper--overlay{% endif %}">
+            {%- if block.settings.image != blank -%}
+              {%- assign img_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+
+              <img class="hero__image hero__image--{{ blockId }} lazyload{% if block.settings.image_mobile != blank %} small--hide{% endif %}"
+                src=""
+                data-src="{{ img_url }}"
+                data-aspectratio="{{ block.settings.image.aspect_ratio }}"
+                data-sizes="auto"
+                data-parent-fit="cover"
+                alt="{{ block.settings.image.alt | escape }}">
+              <noscript>
+                <img class="hero__image hero__image--{{ blockId }}{% if block.settings.image_mobile != blank %} small--hide{% endif %}"
+                  src="{{ block.settings.image | img_url: '1400x' }}"
+                  alt="{{ block.settings.image.alt | escape }}">
+              </noscript>
+
+              {%- if block.settings.image_mobile != blank -%}
+                {%- assign img_mobile_url = block.settings.image_mobile | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                <img class="hero__image hero__image--{{ blockId }} lazyload medium-up--hide"
+                  src=""
+                  data-src="{{ img_mobile_url }}"
+                  data-aspectratio="{{ block.settings.image_mobile.aspect_ratio }}"
+                  data-sizes="auto"
+                  data-parent-fit="cover"
+                  alt="{{ block.settings.image_mobile.alt | escape }}">
+                <noscript>
+                  <img class="hero__image hero__image--{{ blockId }} medium-up--hide"
+                    src="{{ block.settings.image_mobile | img_url: '1400x' }}"
+                    alt="{{ block.settings.image_mobile.alt | escape }}">
+                </noscript>
+              {%- endif -%}
+            {%- else -%}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </div>
+
+          {%- if link_slide -%}
+            <a href="{{ block.settings.link }}" class="hero__slide-link">
+          {%- endif -%}
+
+          {%- if hero_text -%}
+            <div class="hero__text-wrap">
+              <div class="page-width">
+                <div class="hero__text-content {{ block.settings.text_align }}">
+                  <div class="hero__text-shadow" data-aos>
+                    {%- unless block.settings.title == blank -%}
+                      <h2 class="h1 hero__title appear-delay{% cycle '','-2','-4','-6','-8' %}">
+                        {{ block.settings.title | newline_to_br }}
+                      </h2>
+                    {%- endunless -%}
+                    {%- if block.settings.subheading or block.settings.link -%}
+                      {%- unless block.settings.subheading == blank -%}
+                        <div class="hero__subtitle appear-delay{% cycle '','-2','-4','-6','-8' %}">
+                          {{ block.settings.subheading | escape }}
+                        </div>
+                      {%- endunless -%}
+                      {%- if block.settings.link_text != blank -%}
+                        <div class="hero__link appear-delay{% cycle '','-2','-4','-6','-8' %}">
+                          {%- if block.settings.link_text != blank -%}
+                            <a href="{{ block.settings.link }}" class="btn btn--inverse">
+                              {{ block.settings.link_text }}
+                            </a>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if link_slide -%}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

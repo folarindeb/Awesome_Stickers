@@ -1,0 +1,205 @@
+{%- liquid
+  assign blockId = block.id
+  if product
+    assign blockId = block.id | append: product.id
+  endif
+
+  assign has_custom_tabs = false
+  for tag in product.tags
+    if tag contains '_tab'
+      assign has_custom_tabs = true
+    endif
+  endfor
+
+  assign all_tab_content = ''
+  assign is_first = true
+-%}
+
+{%- if settings.product_content_1 != blank or settings.product_content_2 != blank or settings.product_content_3 != blank or settings.product_contact or has_custom_tabs -%}
+  <div
+    class="collapsibles-wrapper collapsibles-wrapper--tabs small--text-center">
+
+    {%- if product.description or product.empty?-%}
+      <button type="button"
+        class="label collapsible-trigger collapsible-trigger--tab collapsible--auto-height{% if is_first %} is-open{% endif %}"
+        data-id="{{ section_id }}"
+        aria-controls="Product-description-{{ section_id }}">
+        {{ 'products.product.description' | t }}
+      </button>
+      {%- capture tab_content -%}
+        <div id="Product-description-{{ section_id }}" class="collapsible-content collapsible-content--all{% if is_first %} is-open{% endif %}"
+        {% if is_first %} style="height: auto"{% endif %}>
+          <div class="collapsible-content__inner rte">
+            {%- if product.empty? -%}
+              {{ 'home_page.onboarding.product_description' | t }}
+            {%- else -%}
+              {{ product.description }}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endcapture -%}
+      {%- assign all_tab_content = all_tab_content | append: tab_content -%}
+      {%- assign is_first = false -%}
+    {%- endif -%}
+
+    {%- for tag in product.tags -%}
+      {%- if tag contains '_tab' -%}
+        {%- assign include_page_handle = tag | split: '_' -%}
+        {%- assign include_page = pages[include_page_handle.last] -%}
+        {%- if include_page.title != blank -%}
+          <button type="button"
+            class="label collapsible-trigger collapsible-trigger--tab collapsible--auto-height{% if is_first %} is-open{% endif %}"
+            data-id="{{ section_id }}"
+            aria-controls="Product-content-{{ include_page_handle.last }}-{{ section_id }}">
+            {{ include_page.title }}
+          </button>
+          {%- capture tab_content -%}
+            <div id="Product-content-{{ include_page_handle.last }}-{{ section_id }}" class="collapsible-content collapsible-content--all{% if is_first %} is-open{% endif %}"
+            {% if is_first %} style="height: auto"{% endif %}>
+              <div class="collapsible-content__inner rte">
+                {{ include_page.content }}
+              </div>
+            </div>
+          {%- endcapture -%}
+          {%- assign all_tab_content = all_tab_content | append: tab_content -%}
+          {%- assign is_first = false -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if settings.product_content_1 != blank -%}
+      <button type="button"
+        class="label collapsible-trigger collapsible-trigger--tab{% if is_first %} is-open{% endif %}"
+        data-id="{{ section_id }}"
+        aria-controls="Product-content-1-{{ section_id }}">
+        {{ pages[settings.product_content_1].title }}
+      </button>
+      {%- capture tab_content -%}
+        <div id="Product-content-1-{{ section_id }}" class="collapsible-content collapsible-content--all{% if is_first %} is-open{% endif %}"
+        {% if is_first %} style="height: auto"{% endif %}>
+          <div class="collapsible-content__inner rte">
+            {{ pages[settings.product_content_1].content }}
+          </div>
+        </div>
+      {%- endcapture -%}
+      {%- assign all_tab_content = all_tab_content | append: tab_content -%}
+      {%- assign is_first = false -%}
+    {%- endif -%}
+    {%- if settings.product_content_2 != blank -%}
+      <button type="button"
+        class="label collapsible-trigger collapsible-trigger--tab{% if is_first %} is-open{% endif %}"
+        data-id="{{ section_id }}"
+        aria-controls="Product-content-2-{{ section_id }}">
+        {{ pages[settings.product_content_2].title }}
+      </button>
+      {%- capture tab_content -%}
+        <div id="Product-content-2-{{ section_id }}" class="collapsible-content collapsible-content--all{% if is_first %} is-open{% endif %}"
+        {% if is_first %} style="height: auto"{% endif %}>
+          <div class="collapsible-content__inner rte">
+            {{ pages[settings.product_content_2].content }}
+          </div>
+        </div>
+      {%- endcapture -%}
+      {%- assign all_tab_content = all_tab_content | append: tab_content -%}
+      {%- assign is_first = false -%}
+    {%- endif -%}
+    {%- if settings.product_content_3 != blank -%}
+      <button type="button"
+        class="label collapsible-trigger collapsible-trigger--tab{% if is_first %} is-open{% endif %}"
+        data-id="{{ section_id }}"
+        aria-controls="Product-content-3-{{ section_id }}">
+        {{ pages[settings.product_content_3].title }}
+      </button>
+      {%- capture tab_content -%}
+        <div id="Product-content-3-{{ section_id }}" class="collapsible-content collapsible-content--all{% if is_first %} is-open{% endif %}"
+        {% if is_first %} style="height: auto"{% endif %}>
+          <div class="collapsible-content__inner rte">
+            {{ pages[settings.product_content_3].content }}
+          </div>
+        </div>
+      {%- endcapture -%}
+      {%- assign all_tab_content = all_tab_content | append: tab_content -%}
+      {%- assign is_first = false -%}
+    {%- endif -%}
+
+    {%- if settings.product_contact -%}
+      <button type="button"
+        class="label collapsible-trigger collapsible-trigger--tab{% if is_first %} is-open{% endif %}"
+        data-id="{{ section_id }}"
+        aria-controls="Product-content-4-{{ section_id }}">
+        {{ settings.product_contact_title }}
+      </button>
+
+      {%- capture tab_content -%}
+        <div id="Product-content-4-{{ section_id }}" class="collapsible-content collapsible-content--all{% if is_first %} is-open{% endif %}"
+        {% if is_first %} style="height: auto"{% endif %}>
+          <div class="collapsible-content__inner rte">
+            {%- assign form_id = 'contact-' | append: section_id -%}
+            {%- form 'contact', id: form_id  -%}
+              <div class="form-vertical">
+
+                <input type="hidden" name="contact[product]" value="Product question for: {{ shop.secure_url }}/admin/products/{{ product.id }}">
+
+                <div class="grid grid--small">
+                  <div class="grid__item medium-up--one-half">
+                    <label for="ContactFormName-{{ blockId }}">{{ 'contact.form.name' | t }}</label>
+                    <input type="text" id="ContactFormName-{{ blockId }}" class="input-full" name="contact[name]" autocapitalize="words" value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}">
+                  </div>
+
+                  <div class="grid__item medium-up--one-half">
+                    <label for="ContactFormEmail-{{ blockId }}">{{ 'contact.form.email' | t }}</label>
+                    <input type="email" id="ContactFormEmail-{{ blockId }}" class="input-full" name="contact[email]" autocapitalize="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}">
+                  </div>
+                </div>
+
+                {%- if settings.product_contact_show_phone -%}
+                  <label for="ContactFormPhone-{{ blockId }}">{{ 'contact.form.phone' | t }}</label>
+                  <input type="tel" id="ContactFormPhone-{{ blockId }}" class="input-full" name="contact[phone]" pattern="[0-9\-]*" value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}">
+                {%- endif -%}
+
+                <label for="ContactFormMessage-{{ blockId }}">{{ 'contact.form.message' | t }}</label>
+                <textarea rows="5" id="ContactFormMessage-{{ blockId }}" class="input-full" name="contact[body]">{% if form.body %}{{ form.body }}{% endif %}</textarea>
+
+                <button type="submit" class="btn">
+                  {{ 'contact.form.send' | t }}
+                </button>
+
+              </div>
+            {%- endform -%}
+          </div>
+        </div>
+      {%- endcapture -%}
+      {%- assign all_tab_content = all_tab_content | append: tab_content -%}
+      {%- assign is_first = false -%}
+    {%- endif -%}
+
+    <div class="collapsibles-content-wrapper">
+      {{ all_tab_content }}
+    </div>
+
+    {%- if settings.product_contact -%}
+      {%- assign form_id = 'contact-product-' | append: section_id -%}
+      {%- form 'contact', id: form_id  -%}
+        {%- if form.posted_successfully? -%}
+          <p class="note note--success">
+            {{ 'contact.form.post_success' | t }}
+          </p>
+        {%- endif -%}
+
+        {%- if form.errors -%}
+          {{ form.errors | default_errors }}
+        {%- endif -%}
+      {%- endform -%}
+    {%- endif -%}
+
+  </div>
+{%- else -%}
+  {% comment %}
+    No tabs setup, show normal description
+  {% endcomment %}
+  {%- if product.description -%}
+    <div class="product-single__description rte">
+      {{ product.description }}
+    </div>
+  {%- endif -%}
+{%- endif -%}

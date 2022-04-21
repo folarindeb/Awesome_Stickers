@@ -1,0 +1,59 @@
+{%- assign natural_height_ratio = '60%' -%}
+{% if block.settings.image != blank %}
+  {%- capture natural_height_ratio -%}{{ 100 | divided_by: block.settings.image.aspect_ratio }}%{% endcapture %}
+{% endif %}
+
+{%- style -%}
+  @media screen and (max-width: 768px) {
+    .background-media-text--{{ block.id }} {
+      background: {{ block.settings.color_border }};
+    }
+  }
+  @media only screen and (min-width: 769px) {
+    .background-media-text--{{ block.id }} {
+      height: 0;
+      padding-bottom: {{ natural_height_ratio | plus: block.settings.desktop_size }}%;
+    }
+  }
+  .background-media-text--{{ block.id }} .background-media-text__image {
+    background-position: {{ block.settings.image_alignment }};
+  }
+{%- endstyle -%}
+
+<div
+  class="background-media-text background-media-text--{{ block.id }} loaded"
+  data-aos="background-media-text__animation">
+
+  <div
+    class="background-media-text__image{% if block.settings.image != blank %} lazyload{% endif %}"
+    {% if block.settings.image != blank %}
+      data-bgset="{% render 'bgset', image: block.settings.image %}"
+      data-sizes="auto"
+    {% endif %}>
+    {%- if block.settings.image == blank -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+  {%- if block.settings.subtitle != blank or block.settings.title != blank or block.settings.text != blank -%}
+    <div class="background-media-text__inner">
+      <div class="background-media-text__aligner background-media-text--{{ block.settings.layout }}">
+        <div class="background-media-text__text" data-aos>
+          {%- if block.settings.subtitle != blank -%}
+            <div class="subheading appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ block.settings.subtitle }}</div>
+          {%- endif -%}
+          {%- if block.settings.title != blank -%}
+            <h2 class="h1 appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ block.settings.title | escape }}</h2>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <div class="rte appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ block.settings.text }}</div>
+          {%- endif -%}
+          {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+            <a href="{{ block.settings.button_link }}" class="btn appear-delay{% cycle '','-1','-2','-3','-4' %}">
+              {{ block.settings.button_label }}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+</div>

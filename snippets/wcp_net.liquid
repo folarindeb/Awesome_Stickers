@@ -1,0 +1,657 @@
+{% if customer.tags contains 'wpdnet' %}
+ <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+{{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+ {% if shop.metafields.wcp_net.isdisplayDate == 'true' or shop.metafields.wcp_net.isdisplayDate == '1'  %}
+<script type="text/javascript">
+!function(e,t){"use strict";var n;if("object"==typeof exports){try{n=require("moment")}catch(e){}module.exports=t(n)}else"function"==typeof define&&define.amd?define(function(e){try{n=e("moment")}catch(e){}return t(n)}):e.Pikaday=t(e.moment)}(this,function(e){"use strict";var t="function"==typeof e,n=!!window.addEventListener,a=window.document,i=window.setTimeout,s=function(e,t,a,i){n?e.addEventListener(t,a,!!i):e.attachEvent("on"+t,a)},o=function(e,t,a,i){n?e.removeEventListener(t,a,!!i):e.detachEvent("on"+t,a)},r=function(e,t){return-1!==(" "+e.className+" ").indexOf(" "+t+" ")},l=function(e,t){r(e,t)||(e.className=""===e.className?t:e.className+" "+t)},h=function(e,t){var n;e.className=(n=(" "+e.className+" ").replace(" "+t+" "," ")).trim?n.trim():n.replace(/^\s+|\s+$/g,"")},d=function(e){return/Array/.test(Object.prototype.toString.call(e))},u=function(e){return/Date/.test(Object.prototype.toString.call(e))&&!isNaN(e.getTime())},c=function(e,t){return[31,(n=e,n%4==0&&n%100!=0||n%400==0?29:28),31,30,31,30,31,31,30,31,30,31][t];var n},f=function(e){u(e)&&e.setHours(0,0,0,0)},g=function(e,t){return e.getTime()===t.getTime()},m=function(e,t,n){var a,i;for(a in t)(i=void 0!==e[a])&&"object"==typeof t[a]&&null!==t[a]&&void 0===t[a].nodeName?u(t[a])?n&&(e[a]=new Date(t[a].getTime())):d(t[a])?n&&(e[a]=t[a].slice(0)):e[a]=m({},t[a],n):!n&&i||(e[a]=t[a]);return e},p=function(e,t,n){var i;a.createEvent?((i=a.createEvent("HTMLEvents")).initEvent(t,!0,!1),i=m(i,n),e.dispatchEvent(i)):a.createEventObject&&(i=a.createEventObject(),i=m(i,n),e.fireEvent("on"+t,i))},y=function(e){return e.month<0&&(e.year-=Math.ceil(Math.abs(e.month)/12),e.month+=12),e.month>11&&(e.year+=Math.floor(Math.abs(e.month)/12),e.month-=12),e},D={field:null,bound:void 0,ariaLabel:"Use the arrow keys to pick a date",position:"bottom",reposition:!1,format:"YYYY-MM-DD",toString:null,parse:null,defaultDate:null,setDefaultDate:!1,firstDay:0,formatStrict:!1,minDate:null,maxDate:null,yearRange:10,showWeekNumber:!1,pickWholeWeek:!1,minYear:2018,maxYear:9999,minMonth:void 0,maxMonth:void 0,startRange:null,endRange:null,isRTL:!1,yearSuffix:"",showMonthAfterYear:!1,showDaysInNextAndPreviousMonths:!1,enableSelectionDaysInNextAndPreviousMonths:!1,numberOfMonths:1,mainCalendar:"left",container:void 0,blurFieldOnSelect:!0,i18n:{previousMonth:"Previous Month",nextMonth:"Next Month",months:["January","February","March","April","May","June","July","August","September","October","November","December"],weekdays:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],weekdaysShort:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]},theme:null,events:[],onSelect:null,onOpen:null,onClose:null,onDraw:null,keyboardInput:!0},v=function(e,t,n){for(t+=e.firstDay;t>=7;)t-=7;return n?e.i18n.weekdaysShort[t]:e.i18n.weekdays[t]},b=function(e){var t=[],n="false";if(e.isEmpty){if(!e.showDaysInNextAndPreviousMonths)return'<td class="is-empty"></td>';t.push("is-outside-current-month"),e.enableSelectionDaysInNextAndPreviousMonths||t.push("is-selection-disabled")}return e.isDisabled&&t.push("is-disabled"),e.isToday&&t.push("is-today"),e.isSelected&&(t.push("is-selected"),n="true"),e.hasEvent&&t.push("has-event"),e.isInRange&&t.push("is-inrange"),e.isStartRange&&t.push("is-startrange"),e.isEndRange&&t.push("is-endrange"),'<td data-day="'+e.day+'" class="'+t.join(" ")+'" aria-selected="'+n+'"><button class="pika-button pika-day" type="button" data-pika-year="'+e.year+'" data-pika-month="'+e.month+'" data-pika-day="'+e.day+'">'+e.day+"</button></td>"},_=function(e,t,n,a,i,s){var o,r,l,h,u,c=e._o,f=n===c.minYear,g=n===c.maxYear,m='<div id="'+s+'" class="pika-title" role="heading" aria-live="assertive">',p=!0,y=!0;for(l=[],o=0;o<12;o++)l.push('<option value="'+(n===i?o-t:12+o-t)+'"'+(o===a?' selected="selected"':"")+(f&&o<c.minMonth||g&&o>c.maxMonth?'disabled="disabled"':"")+">"+c.i18n.months[o]+"</option>");for(h='<div class="pika-label">'+c.i18n.months[a]+'<select class="pika-select pika-select-month" tabindex="-1">'+l.join("")+"</select></div>",d(c.yearRange)?(o=c.yearRange[0],r=c.yearRange[1]+1):(o=n-c.yearRange,r=1+n+c.yearRange),l=[];o<r&&o<=c.maxYear;o++)o>=c.minYear&&l.push('<option value="'+o+'"'+(o===n?' selected="selected"':"")+">"+o+"</option>");return u='<div class="pika-label">'+n+c.yearSuffix+'<select class="pika-select pika-select-year" tabindex="-1">'+l.join("")+"</select></div>",c.showMonthAfterYear?m+=u+h:m+=h+u,f&&(0===a||c.minMonth>=a)&&(p=!1),g&&(11===a||c.maxMonth<=a)&&(y=!1),0===t&&(m+='<button class="pika-prev'+(p?"":" is-disabled")+'" type="button">'+c.i18n.previousMonth+"</button>"),t===e._o.numberOfMonths-1&&(m+='<button class="pika-next'+(y?"":" is-disabled")+'" type="button">'+c.i18n.nextMonth+"</button>"),m+"</div>"},w=function(e,t,n){return'<table cellpadding="0" cellspacing="0" class="pika-table" role="grid" aria-labelledby="'+n+'">'+function(e){var t,n=[];for(e.showWeekNumber&&n.push("<th></th>"),t=0;t<7;t++)n.push('<th scope="col"><abbr title="'+v(e,t)+'">'+v(e,t,!0)+"</abbr></th>");return"<thead><tr>"+(e.isRTL?n.reverse():n).join("")+"</tr></thead>"}(e)+("<tbody>"+t.join("")+"</tbody>")+"</table>"},M=function(o){var l=this,h=l.config(o);l._onMouseDown=function(e){if(l._v){var t=(e=e||window.event).target||e.srcElement;if(t)if(r(t,"is-disabled")||(!r(t,"pika-button")||r(t,"is-empty")||r(t.parentNode,"is-disabled")?r(t,"pika-prev")?l.prevMonth():r(t,"pika-next")&&l.nextMonth():(l.setDate(new Date(t.getAttribute("data-pika-year"),t.getAttribute("data-pika-month"),t.getAttribute("data-pika-day"))),h.bound&&i(function(){l.hide(),h.blurFieldOnSelect&&h.field&&h.field.blur()},100))),r(t,"pika-select"))l._c=!0;else{if(!e.preventDefault)return e.returnValue=!1,!1;e.preventDefault()}}},l._onChange=function(e){var t=(e=e||window.event).target||e.srcElement;t&&(r(t,"pika-select-month")?l.gotoMonth(t.value):r(t,"pika-select-year")&&l.gotoYear(t.value))},l._onKeyChange=function(e){if(e=e||window.event,l.isVisible())switch(e.keyCode){case 13:case 27:h.field&&h.field.blur();break;case 37:e.preventDefault(),l.adjustDate("subtract",1);break;case 38:l.adjustDate("subtract",7);break;case 39:l.adjustDate("add",1);break;case 40:l.adjustDate("add",7)}},l._onInputChange=function(n){var a;n.firedBy!==l&&(a=h.parse?h.parse(h.field.value,h.format):t?(a=e(h.field.value,h.format,h.formatStrict))&&a.isValid()?a.toDate():null:new Date(Date.parse(h.field.value)),u(a)&&l.setDate(a),l._v||l.show())},l._onInputFocus=function(){l.show()},l._onInputClick=function(){l.show()},l._onInputBlur=function(){var e=a.activeElement;do{if(r(e,"pika-single"))return}while(e=e.parentNode);l._c||(l._b=i(function(){l.hide()},50)),l._c=!1},l._onClick=function(e){var t=(e=e||window.event).target||e.srcElement,a=t;if(t){!n&&r(t,"pika-select")&&(t.onchange||(t.setAttribute("onchange","return;"),s(t,"change",l._onChange)));do{if(r(a,"pika-single")||a===h.trigger)return}while(a=a.parentNode);l._v&&t!==h.trigger&&a!==h.trigger&&l.hide()}},l.el=a.createElement("div"),l.el.className="pika-single"+(h.isRTL?" is-rtl":"")+(h.theme?" "+h.theme:""),s(l.el,"mousedown",l._onMouseDown,!0),s(l.el,"touchend",l._onMouseDown,!0),s(l.el,"change",l._onChange),h.keyboardInput&&s(a,"keydown",l._onKeyChange),h.field&&(h.container?h.container.appendChild(l.el):h.bound?a.body.appendChild(l.el):h.field.parentNode.insertBefore(l.el,h.field.nextSibling),s(h.field,"change",l._onInputChange),h.defaultDate||(t&&h.field.value?h.defaultDate=e(h.field.value,h.format).toDate():h.defaultDate=new Date(Date.parse(h.field.value)),h.setDefaultDate=!0));var d=h.defaultDate;u(d)?h.setDefaultDate?l.setDate(d,!0):l.gotoDate(d):l.gotoDate(new Date),h.bound?(this.hide(),l.el.className+=" is-bound",s(h.trigger,"click",l._onInputClick),s(h.trigger,"focus",l._onInputFocus),s(h.trigger,"blur",l._onInputBlur)):this.show()};return M.prototype={config:function(e){this._o||(this._o=m({},D,!0));var t=m(this._o,e,!0);t.isRTL=!!t.isRTL,t.field=t.field&&t.field.nodeName?t.field:null,t.theme="string"==typeof t.theme&&t.theme?t.theme:null,t.bound=!!(void 0!==t.bound?t.field&&t.bound:t.field),t.trigger=t.trigger&&t.trigger.nodeName?t.trigger:t.field,t.disableWeekends=!!t.disableWeekends,t.disableDayFn="function"==typeof t.disableDayFn?t.disableDayFn:null;var n=parseInt(t.numberOfMonths,10)||1;if(t.numberOfMonths=n>4?4:n,u(t.minDate)||(t.minDate=!1),u(t.maxDate)||(t.maxDate=!1),t.minDate&&t.maxDate&&t.maxDate<t.minDate&&(t.maxDate=t.minDate=!1),t.minDate&&this.setMinDate(t.minDate),t.maxDate&&this.setMaxDate(t.maxDate),d(t.yearRange)){var a=(new Date).getFullYear()-10;t.yearRange[0]=parseInt(t.yearRange[0],10)||a,t.yearRange[1]=parseInt(t.yearRange[1],10)||a}else t.yearRange=Math.abs(parseInt(t.yearRange,10))||D.yearRange,t.yearRange>100&&(t.yearRange=100);return t},toString:function(n){return n=n||this._o.format,u(this._d)?this._o.toString?this._o.toString(this._d,n):t?e(this._d).format(n):this._d.toDateString():""},getMoment:function(){return t?e(this._d):null},setMoment:function(n,a){t&&e.isMoment(n)&&this.setDate(n.toDate(),a)},getDate:function(){return u(this._d)?new Date(this._d.getTime()):null},setDate:function(e,t){if(!e)return this._d=null,this._o.field&&(this._o.field.value="",p(this._o.field,"change",{firedBy:this})),this.draw();if("string"==typeof e&&(e=new Date(Date.parse(e))),u(e)){var n=this._o.minDate,a=this._o.maxDate;u(n)&&e<n?e=n:u(a)&&e>a&&(e=a),this._d=new Date(e.getTime()),f(this._d),this.gotoDate(this._d),this._o.field&&(this._o.field.value=this.toString(),p(this._o.field,"change",{firedBy:this})),t||"function"!=typeof this._o.onSelect||this._o.onSelect.call(this,this.getDate())}},gotoDate:function(e){var t=!0;if(u(e)){if(this.calendars){var n=new Date(this.calendars[0].year,this.calendars[0].month,1),a=new Date(this.calendars[this.calendars.length-1].year,this.calendars[this.calendars.length-1].month,1),i=e.getTime();a.setMonth(a.getMonth()+1),a.setDate(a.getDate()-1),t=i<n.getTime()||a.getTime()<i}t&&(this.calendars=[{month:e.getMonth(),year:e.getFullYear()}],"right"===this._o.mainCalendar&&(this.calendars[0].month+=1-this._o.numberOfMonths)),this.adjustCalendars()}},adjustDate:function(e,t){var n,a=this.getDate()||new Date,i=24*parseInt(t)*60*60*1e3;"add"===e?n=new Date(a.valueOf()+i):"subtract"===e&&(n=new Date(a.valueOf()-i)),this.setDate(n)},adjustCalendars:function(){this.calendars[0]=y(this.calendars[0]);for(var e=1;e<this._o.numberOfMonths;e++)this.calendars[e]=y({month:this.calendars[0].month+e,year:this.calendars[0].year});this.draw()},gotoToday:function(){this.gotoDate(new Date)},gotoMonth:function(e){isNaN(e)||(this.calendars[0].month=parseInt(e,10),this.adjustCalendars())},nextMonth:function(){this.calendars[0].month++,this.adjustCalendars()},prevMonth:function(){this.calendars[0].month--,this.adjustCalendars()},gotoYear:function(e){isNaN(e)||(this.calendars[0].year=parseInt(e,10),this.adjustCalendars())},setMinDate:function(e){e instanceof Date?(f(e),this._o.minDate=e,this._o.minYear=e.getFullYear(),this._o.minMonth=e.getMonth()):(this._o.minDate=D.minDate,this._o.minYear=D.minYear,this._o.minMonth=D.minMonth,this._o.startRange=D.startRange),this.draw()},setMaxDate:function(e){e instanceof Date?(f(e),this._o.maxDate=e,this._o.maxYear=e.getFullYear(),this._o.maxMonth=e.getMonth()):(this._o.maxDate=D.maxDate,this._o.maxYear=D.maxYear,this._o.maxMonth=D.maxMonth,this._o.endRange=D.endRange),this.draw()},setStartRange:function(e){this._o.startRange=e},setEndRange:function(e){this._o.endRange=e},draw:function(e){if(this._v||e){var t,n=this._o,a=n.minYear,s=n.maxYear,o=n.minMonth,r=n.maxMonth,l="";this._y<=a&&(this._y=a,!isNaN(o)&&this._m<o&&(this._m=o)),this._y>=s&&(this._y=s,!isNaN(r)&&this._m>r&&(this._m=r)),t="pika-title-"+Math.random().toString(36).replace(/[^a-z]+/g,"").substr(0,2);for(var h=0;h<n.numberOfMonths;h++)l+='<div class="pika-lendar">'+_(this,h,this.calendars[h].year,this.calendars[h].month,this.calendars[0].year,t)+this.render(this.calendars[h].year,this.calendars[h].month,t)+"</div>";this.el.innerHTML=l,n.bound&&"hidden"!==n.field.type&&i(function(){n.trigger.focus()},1),"function"==typeof this._o.onDraw&&this._o.onDraw(this),n.bound&&n.field.setAttribute("aria-label",n.ariaLabel)}},adjustPosition:function(){var e,t,n,i,s,o,r,d,u,c,f,g;if(!this._o.container){if(this.el.style.position="static",t=e=this._o.trigger,n=this.el.offsetWidth,i=this.el.offsetHeight,s=window.innerWidth||a.documentElement.clientWidth,o=window.innerHeight||a.documentElement.clientHeight,r=window.pageYOffset||a.body.scrollTop||a.documentElement.scrollTop,f=!0,g=!0,"function"==typeof e.getBoundingClientRect)d=(c=e.getBoundingClientRect()).left+window.pageXOffset,u=c.bottom+window.pageYOffset;else for(d=t.offsetLeft,u=t.offsetTop+t.offsetHeight;t=t.offsetParent;)d+=t.offsetLeft,u+=t.offsetTop;(this._o.reposition&&d+n>s||this._o.position.indexOf("right")>-1&&d-n+e.offsetWidth>0)&&(d=d-n+e.offsetWidth,f=!1),(this._o.reposition&&u+i>o+r||this._o.position.indexOf("top")>-1&&u-i-e.offsetHeight>0)&&(u=u-i-e.offsetHeight,g=!1),l(this.el,f?"left-aligned":"right-aligned"),l(this.el,g?"bottom-aligned":"top-aligned"),h(this.el,f?"right-aligned":"left-aligned"),h(this.el,g?"top-aligned":"bottom-aligned")}},render:function(e,t,n){var a=this._o,i=new Date,s=c(e,t),o=new Date(e,t,1).getDay(),r=[],l=[];f(i),a.firstDay>0&&(o-=a.firstDay)<0&&(o+=7);for(var h=0===t?11:t-1,d=11===t?0:t+1,m=0===t?e-1:e,p=11===t?e+1:e,y=c(m,h),D=s+o,v=D;v>7;)v-=7;D+=7-v;for(var _,M,k,x,R,N,S,C=!1,I=0,T=0;I<D;I++){var E=new Date(e,t,I-o+1),Y=!!u(this._d)&&g(E,this._d),O=g(E,i),j=-1!==a.events.indexOf(E.toDateString()),W=I<o||I>=s+o,A=I-o+1,F=t,L=e,P=a.startRange&&g(a.startRange,E),B=a.endRange&&g(a.endRange,E),H=a.startRange&&a.endRange&&a.startRange<E&&E<a.endRange,V=a.minDate&&E<a.minDate||a.maxDate&&E>a.maxDate||a.disableWeekends&&(void 0,0===(S=E.getDay())||6===S)||a.disableDayFn&&a.disableDayFn(E);W&&(I<o?(A=y+A,F=h,L=m):(A-=s,F=d,L=p));var J={day:A,month:F,year:L,hasEvent:j,isSelected:Y,isToday:O,isDisabled:V,isEmpty:W,isStartRange:P,isEndRange:B,isInRange:H,showDaysInNextAndPreviousMonths:a.showDaysInNextAndPreviousMonths,enableSelectionDaysInNextAndPreviousMonths:a.enableSelectionDaysInNextAndPreviousMonths};a.pickWholeWeek&&Y&&(C=!0),l.push(b(J)),7==++T&&(a.showWeekNumber&&l.unshift((k=I-o,x=t,R=e,N=void 0,N=new Date(R,0,1),'<td class="pika-week">'+Math.ceil(((new Date(R,x,k)-N)/864e5+N.getDay()+1)/7)+"</td>")),r.push((_=l,M=a.isRTL,'<tr class="pika-row'+(a.pickWholeWeek?" pick-whole-week":"")+(C?" is-selected":"")+'">'+(M?_.reverse():_).join("")+"</tr>")),l=[],T=0,C=!1)}return w(a,r,n)},isVisible:function(){return this._v},show:function(){this.isVisible()||(this._v=!0,this.draw(),h(this.el,"is-hidden"),this._o.bound&&(s(a,"click",this._onClick),this.adjustPosition()),"function"==typeof this._o.onOpen&&this._o.onOpen.call(this))},hide:function(){var e=this._v;!1!==e&&(this._o.bound&&o(a,"click",this._onClick),this.el.style.position="static",this.el.style.left="auto",this.el.style.top="auto",l(this.el,"is-hidden"),this._v=!1,void 0!==e&&"function"==typeof this._o.onClose&&this._o.onClose.call(this))},destroy:function(){var e=this._o;this.hide(),o(this.el,"mousedown",this._onMouseDown,!0),o(this.el,"touchend",this._onMouseDown,!0),o(this.el,"change",this._onChange),e.keyboardInput&&o(a,"keydown",this._onKeyChange),e.field&&(o(e.field,"change",this._onInputChange),e.bound&&(o(e.trigger,"click",this._onInputClick),o(e.trigger,"focus",this._onInputFocus),o(e.trigger,"blur",this._onInputBlur))),this.el.parentNode&&this.el.parentNode.removeChild(this.el)}},M});
+</script>
+{% endif %}
+<style type="text/css">
+.wcp-wrap div, .wcp-wrap span, .wcp-wrap object, .wcp-wrap iframe,
+.wcp-wrap h1, .wcp-wrap h2, .wcp-wrap h3, .wcp-wrap h4, .wcp-wrap h5, .wcp-wrap h6, 
+.wcp-wrap p, .wcp-wrap blockquote, .wcp-wrap pre,
+.wcp-wrap a, .wcp-wrap img, .wcp-wrap strong,
+.wcp-wrap b, .wcp-wrap u, .wcp-wrap i,
+.wcp-wrap dl, .wcp-wrap dt, .wcp-wrap dd, .wcp-wrap ol, .wcp-wrap ul, .wcp-wrap li,
+.wcp-wrap fieldset, .wcp-wrap form, .wcp-wrap label, .wcp-wrap legend,
+.wcp-wrap table, .wcp-wrap caption, .wcp-wrap tbody, .wcp-wrap tfoot, .wcp-wrap thead, .wcp-wrap tr, .wcp-wrap th, .wcp-wrap td,{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  text-transform: none;
+}
+/* HTML5 display-role reset for older browsers */
+.wcp-wrap article, .wcp-wrap aside, .wcp-wrap details, .wcp-wrap figcaption, .wcp-wrap figure, 
+.wcp-wrap footer, .wcp-wrap header, .wcp-wrap hgroup, .wcp-wrap menu, .wcp-wrap nav, .wcp-wrap section {
+	display: block;
+}
+  .wcp-discounts-wrapper{
+  margin-bottom: 10px;
+  }
+.wcp-wrap body {
+	line-height: 1;
+}
+.wcp-wrap ol, .wcp-wrap ul {
+	list-style: none;
+}
+.wcp-wrap table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.blocker {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: auto;
+  z-index: 99999999;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.75);
+  text-align: center;
+}
+.blocker:before{
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -0.05em;
+}
+.blocker.behind {
+  background-color: transparent;
+}
+.wcp-hero-wcpModal {
+  display: inline-block;
+  min-width: 400px;
+  vertical-align: middle;
+  position: relative;
+  z-index: 99999999;
+  max-width: 700px;
+  background: #fff;
+  padding: 30px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -o-border-radius: 8px;
+  -ms-border-radius: 8px;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 0 10px #000;
+  -moz-box-shadow: 0 0 10px #000;
+  -o-box-shadow: 0 0 10px #000;
+  -ms-box-shadow: 0 0 10px #000;
+  box-shadow: 0 0 10px #000;
+  text-align: center;
+  text-transform: none;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333333;
+  -moz-transition: background-color 0.15s linear;
+  -webkit-transition: background-color 0.15s linear;
+  -o-transition: background-color 0.15s linear;
+  transition: background-color 0.15s cubic-bezier(0.785, 0.135, 0.150, 0.860);
+}
+.wcp-hero-wcpModal hr {
+  height: 0;
+  -webkit-box-sizing: content-box;
+     -moz-box-sizing: content-box;
+          box-sizing: content-box;
+  height: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-top: 1px solid #eeeeee;
+}
+.wcp-hero-wcpModal button,
+.wcp-hero-wcpModal input,
+.wcp-hero-wcpModal optgroup,
+.wcp-hero-wcpModal select,
+.wcp-hero-wcpModal textarea {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+.wcp-hero-wcpModal button {
+  overflow: visible;
+}
+.wcp-hero-wcpModal select {
+  text-transform: none;
+  width:100%;
+}
+.wcp-hero-wcpModal button {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+.wcp-hero-wcpModal button::-moz-focus-inner,
+.wcp-hero-wcpModal input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+.wcp-hero-wcpModal input {
+  line-height: normal;
+  width:100%;
+}
+.wcp-hero-wcpModal textarea {
+  line-height: normal;
+  width:100%;
+  border: 1px solid #ccc;  
+  margin-bottom: 10px;
+  min-height: inherit;
+}
+.wcp-hero-wcpModal input[type='number']::-webkit-inner-spin-button,
+.wcp-hero-wcpModal input[type='number']::-webkit-outer-spin-button {
+  height: auto;
+}
+.wcp-hero-wcpModal body.fadein {
+  background: rgba(0, 0, 0, 0.65);
+}
+.wcp-hero-wcpModal #wcp-wcpModal-container {
+  background: wcpite;
+  padding: 12px 18px 40px 18px;
+}
+@media only screen and (min-width:500px) {
+  .wcp-hero-wcpModal #wcp-wcpModal-container {
+    border-radius: 5px;
+    padding: 30px 40px;
+  }
+}
+@media only screen and (min-width:992px) {
+  .wcp-hero-wcpModal #wcp-wcpModal-container {
+    margin-top: 140px;
+  }
+}
+.wcp-hero-wcpModal .fade {
+  opacity: 0;
+  -webkit-transition: opacity 0.15s linear;
+  -o-transition: opacity 0.15s linear;
+  transition: opacity 0.15s linear;
+}
+.wcp-hero-wcpModal .fade.in {
+  opacity: 1;
+}
+.wcp-hero-wcpModal h2 {
+ font-size: 24px;
+ font-family: inherit;
+ font-weight: 500;
+ line-height: 1.1;
+ color: inherit;
+}
+.wcp-hero-wcpModal h3 {
+  font-family: inherit;
+  font-weight: normal;
+  line-height: 1.1;
+  color: inherit;
+  font-size: 18px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.wcp-hero-wcpModal p.body-text {
+  font-size: 20;
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .wcp-hero-wcpModal select:focus,
+  .wcp-hero-wcpModal textarea:focus,
+  .wcp-hero-wcpModal input:focus {
+    font-size: 16px;
+    background: #eee;
+  }
+}
+.wcp-hero-wcpModal .btn {
+  display: inline-block;
+  padding: 8px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.42857143;
+  text-align: center;
+  wcpite-space: nowrap;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+.wcp-hero-wcpModal .btn-success {
+  width: 100%;
+  color: #ffffff;
+  background-color: #4ed14e;
+}
+.wcp-hero-wcpModal .btn-lg {
+  line-height: 24px;
+  font-size: 15px;
+  padding:14px;
+  line-height: 1.3333333;
+}
+.wcp-hero-wcpModal .close {
+  -webkit-appearance: none;
+  padding: 0;
+  cursor: pointer;
+  background: 0 0;
+  border: 0;
+  float: right;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+}
+.wcp-hero-wcpModal form{
+  margin-top:10px;
+}
+.wcp-hero-wcpModal .wcpModal-content .close {
+  font-size: 30px;
+}
+.wcp-hero-wcpModal .wcpModal-backdrop.in {
+  filter: alpha(opacity=65);
+  opacity: .65;
+}
+.wcp-hero-wcpModal .completed_message {
+  display: none;
+}
+.wcp-hero-wcpModal .complete .completed_message {
+  display: block;
+}
+.wcp-hero-wcpModal .single-variant{
+  display:none;
+}
+.wcp-hero-wcpModal form#wcp-form{
+}
+.wcp-hero-wcpModal div.footer{
+  margin-top:20px;
+}
+.wcp-hero-wcpModal div.footer p{
+  color: #b3b3b3;
+  font-size:12px;
+}
+.wcp-hero-wcpModal .alert {
+  padding: 10px;
+  margin: 20px 0px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+.wcp-hero-wcpModal .alert-success {
+  color: red;
+  background-color: red;
+  border-color: #d6e9c6;
+}
+.wcp-hero-wcpModal .alert-danger {
+  color: red;
+  background-color: red;
+  border-color: #ebccd1;
+}
+.wcp-hero-wcpModal .booster-messages{
+  display:none;
+}
+@media (min-width: 0px) {
+  .wcp-hero-wcpModal {
+    min-width:0px;
+  }
+  .wcp-hero-wcpModal a.share-button.twitter{
+    width: 212px;
+    margin-top: 20px;
+    margin-left:0px;
+  }
+  .wcp-hero-wcpModal a.share-button.fb{
+    width: 212px;
+  }
+}
+@media (min-width: 768px) {
+  .wcp-hero-wcpModal {
+    min-width:700px;
+  }
+}
+.wcp-hero-wcpModal input, .wcp-hero-wcpModal input select,.wcp-hero-wcpModal textarea{
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  height:40px
+}
+.wcp-hero-wcpModal select{
+ margin-bottom:10px;
+}
+.wcp-hero-wcpModal .hero-wrap{
+  display: inline-block;
+  vertical-align: middle;
+}
+.wcp-hero-wcpModal img{
+  vertical-align: middle;
+  max-width: 100%;
+  max-height:75px;
+}
+.wcp-hero-wcpModal img.single{
+  margin-right: 20px;
+  margin-left: 0px;
+  display: inline-block;
+  padding-right: 20px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.wcp-hero-wcpModal table#net-order{
+  margin-top:20px;	 
+  width:100%;
+}
+.wcp-hero-wcpModal table#net-order td{
+  padding-top:10px;
+  min-width: 100px;
+  padding-bottom:10px;
+  border:1px solid #eee;
+}
+.wcp-hero-wcpModal table#net-order .net-order-total{
+  margin-top:20px;
+  font-weight:bold;
+}
+.wcp-hero-wcpModal table#net-order td.net-order-prices{
+	text-align:right;
+}
+  .wcp-hero-wcpModal a.close-wcpModal {
+    position: absolute;
+    top: -12.5px;
+    right: -12.5px;
+    display: block;
+    width: 30px;
+    height: 30px;
+    text-indent: -9999px;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAABGdBTUEAANjr9RwUqgAAACBjSFJNAABtmAAAc44AAPJxAACDbAAAg7sAANTIAAAx7AAAGbyeiMU/AAAG7ElEQVR42mJkwA8YoZjBwcGB6fPnz4w/fvxg/PnzJ2N6ejoLFxcX47Rp036B5Dk4OP7z8vL+P3DgwD+o3v9QjBUABBALHguZoJhZXV2dVUNDgxNIcwEtZnn27Nl/ZmZmQRYWFmag5c90dHQY5OXl/z98+PDn1atXv79+/foPUN9fIP4HxRgOAAggRhyWMoOwqKgoq6GhIZe3t7eYrq6uHBDb8/Pz27Gysloga/jz588FYGicPn/+/OapU6deOnXq1GdgqPwCOuA31AF/0S0HCCB0xAQNBU4FBQWB0NBQublz59oADV37Hw28ePHi74MHD/6ii3/8+HEFMGQUgQ6WEhQU5AeZBTWTCdkigABC9ylIAZeMjIxQTEyMysaNG/3+/v37AGTgr1+//s2cOfOXm5vbN6Caz8jY1NT0a29v76/v37//g6q9sHfv3khjY2M5YAgJgsyEmg0PYYAAQreUk4+PT8jd3V1l1apVgUAzfoIM2rlz5x9gHH5BtxAdA9PB1zNnzvyB+R6oLxoopgC1nBPZcoAAgiFQnLIDMb+enp5iV1eXBzDeHoI0z58//xcwIX0mZCkMg9S2trb+hFk+ffr0QCkpKVmQ2VA7QHYxAgQQzLesQMwjIiIilZWVZfPu3bstMJ+SYikyBmUzkBnA9HEMyNcCYgmQHVC7mAACCJagOEBBbGdnp7lgwYJEkIavX7/+BcY1SvAaGRl9tba2xohjMTGxL8nJyT+AWQsuxsbG9vnp06e/QWYdPHiwHmiWKlBcCGQXyNcAAQSzmBuoSQqYim3u37+/EKR48uTJv5ANB+bVr7Dga2xs/AkTV1JS+gq0AJyoQIkPWU9aWtoPkPibN2/2A/l6QCwJ9TULQADB4hcY//xKXl5eHt++fbsAUmxhYYHiM1DiAsr9R7ZcVVUVbikIdHd3/0TWIyws/AWYVsByAgICdkAxRSAWAGI2gACClV7C4uLiOv7+/lEgRZ8+ffqLLd6ABck3ZMuB6uCWrlu37je29HDx4kVwQisvL88FFqkaQDERUHADBBAomBl5eHiYgQmLE1hSgQQZgIUD1lJm69atf4HR8R1YKoH5QIPAWWP9+vV/gOI/gHkeQw+wGAXTwAJJ5t+/f/BUDRBA4NIEKMDMyMjICtQIiniG379/4yza7t69+//Lly8oDrty5co/bJaCAEwcZCkwwTJDLWYCCCCwxcDgY3z16hXDnTt3voP4EhISWA0BFgZMwNqHExh3jMiG1tbWsgHjnA2bHmAeBtdWwOL1MycnJ7wAAQggBmi+kgIW/OaKiorJwOLuFShO0LMSMPF9AUYBSpz6+vqixHlOTs4P9MIEWHaDsxSwYMoE2mEGFJcG5SKAAGJCqjv/AbPUn8ePH98ACQQHB6NUmZqamkzABIgSp5s3bwbHORCA1QDLAWZkPc7OzszA8oHl5cuXVy5duvQBGIXwWgoggGA+FgO6xkBNTS28r69vDrT2+Y1cIMDyJchX6KkXVEmAshd6KB06dAic94EO3AzkBwGxPhCLg8ptgACCZyeQp9jZ2b2AmsuAefM8tnxJCk5ISPgOLTKfAdNEOVDMA2QHLDsBBBC8AAFlbmCLwlZISCg5JSVlJizeQAaQaimoWAUFK0g/sGGwHiiWCMS2yAUIQAAxI7c4gEmeFZi4OJ48ecLMzc39CRiEmgEBASxA/QzA8vYvAxEgNjaWZc2aNezAsprp2LFjp4FpZRdQ+AkQvwLij0AMSoC/AQIIXklAC3AVUBoBxmE8sPXQAiyvN8J8fuPGjR/h4eHf0eMdhkENhOPHj8OT+NGjR88BxZuBOA5kJtRseCUBEECMSI0AdmgBDooDaaDl8sASTSkyMlKzpqZGU1paGlS7MABLrX83b978A6zwwakTmE0YgIkSnHpBfGCV+gxYh98qKSk5CeTeAxVeQPwUiN8AMSjxgdLNX4AAYkRqCLBAXcMHtVwSaLkMMMHJAvOq9IQJE9R8fHxElJWV1bEF8aNHj+7t27fvLTDlXwXGLyhoH0OD+DnU0k/QYAa1QP8BBBAjWsuSFWo5LzRYxKFYAljqiAHzqxCwIBEwMTERBdZeoOYMA7Bl+RFYEbwB5oS3IA9D4/IFEL+E4nfQ6IDFLTgvAwQQI5ZmLRtSsINSuyA0uwlBUyQPMPWD20/AKo8ByP4DTJTfgRgUjB+gFoEc8R6amGDB+wu5mQsQQIxYmrdMUJ+zQTM6NzQEeKGO4UJqOzFADQMZ/A1qCSzBfQXi71ALfyM17sEAIIAY8fQiWKAYFgIwzIbWTv4HjbdfUAf8RPLhH1icojfoAQKIEU8bG9kRyF0aRiz6YP0k5C4LsmUY9TtAADEyEA+IVfufGEUAAQYABejinPr4dLEAAAAASUVORK5CYII=') no-repeat 0 0;
+  }
+  a#wcp-30-open{
+    cursor: pointer;
+  }
+  #wcp-discount-code{
+    max-width: 168px;
+    margin-right: 10px;
+  }
+  #billingsameasshippingcontainer{
+  align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+  #billingsameasshipping{
+    width: auto;
+    margin: 0px 5px;
+  }
+  .wcpbillingAddressContainer{
+  display:none;
+  }
+  .wcp_address_table tr td{    
+    width:48%;
+    margin:0 1%;
+   }
+  .extraFiedContainer{
+  display: grid;
+    grid-template-columns: 1FR 1FR;
+    grid-gap: 10px;
+  }
+  
+  
+</style>
+  <div id='wcp-wcpModal-container' style='display:none;' class='wcp-wrap wcp-hero-wcpModal'>
+  <h3 style="font-weight:bold;font-size:22px;">{{shop.metafields.wcp_net.netConfMsg}}</h3>
+    <p style="text-align:left;" id="net-30-summary">{{shop.metafields.wcp_net.wcp_net_text}}</p>
+    <table id="net-order" cellspacing="0" cellpadding="0">          
+      <tbody>
+      {% for item in cart.items %}
+        {% include 'wcp_discount' with item.product %} 
+        {% include 'wcp_variant' with item.variant %}
+        {% include 'wcp_vd_discount' with item %}
+        
+          {% if set_price or wcp_discount_value < 1 or p_discount_value == 0 %}		
+        {% if wcp_v_price > item.final_price %}
+           {% assign wcp_v_price = item.final_price %}
+        {% endif %}
+        {% if wcp_v_price > item.discounted_price %}
+           	{% assign wcp_v_price = item.discounted_price %}
+        {% endif %}
+                {% endif %}
+        
+        {% assign wcp_line_price = item.quantity | times: wcp_v_price  %} 
+      <tr>
+          <td><img class="images" src="{{ item | img_url: 'small' }}"></td>
+          <td class="line-item-title">
+              {{ item.product.title }} &nbsp;x{{ item.quantity }}<br />
+              {% unless item.variant.title contains 'Default' %}<small>{{ item.variant.title }}</small>{% endunless %}
+          </td>
+          <td class="net-order-prices net_price_container_{{item.variant.id}}">
+            {% if wcp_line_price < item.line_price %}
+              <s class='wcp net_line_price-{{item.variant.id}}'>{{ item.line_price | money }}</s>
+            {% endif %}
+            <span class='wcp net_wcp_line_price-{{item.variant.id}}'>{{ wcp_line_price | money }}</span>
+          </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>               
+       <tr>
+         <td></td>
+         <td class="net-order-total">
+           Total
+         </td>
+         <td class="net-order-prices">
+         {% if shop.metafields.wcp_net.isNetShippingsCost == "true" or shop.metafields.wcp_net.isNetShippingsCost == '1' %}
+        <p><span class="wpd_net_shipping_msg" style="font-weight:bold;"></span>	<span class="wpd_net_shipping_amount" style="font-weight:bold;"></span></p>
+        {% endif %}
+           <span class="wcp-original-cart-total wcp-net-original-cart-total">
+             {{ cart.total_price | money }}
+           </span>
+           <span class="wcp-cart-total wcp-net-cart-total" style="font-weight:bold;"></span>
+           <div class="additional-notes">
+             <span class="wcp-minimums-note"></span>
+           </div>
+         </td>
+       </tr>
+      </tfoot>
+    </table>
+    <br />
+    <div class='extraFiedContainer'>
+      
+      {% if shop.metafields.wcp_net.isdisplayPONo == 'true'  or shop.metafields.wcp_net.isdisplayPONo == '1'%}
+      <div class='wcp_extraFied'>
+        <input type="text" class="wcpPONo" name="wcpPONo" value="" placeholder="Enter Purchase Order Number">
+      </div>
+      {% endif %}
+       
+      {% if shop.metafields.wcp_net.isdisplayUPSNo == 'true'  or shop.metafields.wcp_net.isdisplayUPSNo == '1'%}
+       <div class='wcp_extraFied'>
+        <input type="text" class="wcpUPSNo" name="wcpUPSNo" value="" placeholder="Enter UPS Shipping Account Number" > 
+       </div>
+      {% endif %}
+      
+       {% if shop.metafields.wcp_net.isdisplayDate == 'true'  or shop.metafields.wcp_net.isdisplayDate == '1'%}
+      <div class='wcp_extraFied'>
+      <input placeholder="Select Delivery Date *" type="text" placholder='*' id="datepicker" readonly> 
+      </div>      
+  	{% endif %}
+    {% if shop.metafields.wcp_net.isDisplayBillingEmail == 'true'  or shop.metafields.wcp_net.isDisplayBillingEmail == '1'%}   
+     <div class='wcp_extraFied'>
+       <input type="text" id='wcpbillingEmail' class="wcpbillingEmail" name="wcpbillingEmail" value="" placeholder="Enter Billing Email *"> 
+     </div>
+    {% endif %}
+      
+    
+      
+      {% if shop.metafields.wcp_net.isdisplayShippingInst == 'true'  or shop.metafields.wcp_net.isdisplayShippingInst == '1'%}   
+              <div class='wcp_extraFied'>
+      			  <textarea name="wcpShippingInst" class="wcpShippingInst"  placeholder="Enter Shipping Instructions"></textarea>
+              </div>
+      {% endif %}
+      <div class='wcp_extraFied'>
+     	<textarea class="net-notes" placeholder="Shipping Notes"></textarea>
+      </div>   
+      
+   </div>
+    {% if shop.metafields.wcp_net.isPayment == 'true' or shop.metafields.wcp_net.isPayment == '1' %}
+    {% if shop.metafields.wcp_net.Payment !='' %}
+      <div class='wcp_extraFied'>
+      <select id="payment" name="payment" data-default="select" required>
+        {% assign optionslists = shop.metafields.wcp_net.Payment | split: ',' %}
+        <option value="-1">Select Payment Option</option>
+        {% for optionslist in optionslists %}
+          <option value="{{optionslist}}">{{optionslist}}</option>
+        {% endfor %}   
+      </select>
+      </div>
+    {% endif %}
+    {% endif %}
+    <hr/>
+    
+    <script>       
+  {% capture output %} [{% paginate customer.addresses by 200 %}{% for address in customer.addresses %}{{address | json}}{% unless forloop.last %},{% endunless %}{% endfor %}{% endpaginate %}]{% endcapture %}
+  
+  function ChangeAddress() {
+    var Addresslist={{output}};    
+    var x = document.getElementById("AddressSelector").value;
+    var selectedaddress=Addresslist.find(i=>i.id==x);
+    	$("input[name='wcpaddress[first_name]']").val(selectedaddress.first_name);
+     	$("input[name='wcpaddress[last_name]']").val(selectedaddress.last_name);
+      	$("input[name='wcpaddress[company]']").val(selectedaddress.company);
+      	$("input[name='wcpaddress[address1]']").val(selectedaddress.address1);
+      	$("input[name='wcpaddress[address2]']").val(selectedaddress.address2);
+       	$("input[name='wcpaddress[city]']").val(selectedaddress.city);
+      	$("select[name='wcpaddress[province]']").val(selectedaddress.province);
+      	$("select[name='wcpaddress[country]']").val(selectedaddress.country);
+      	$("input[name='wcpaddress[zip]']").val(selectedaddress.zip);
+      	$("input[name='wcpaddress[phone]']").val(selectedaddress.phone);   
+}
+      
+function billingAddressManager()
+{
+  if (document.getElementById('billingsameasshipping').checked) 
+  {
+    document.getElementById('wcpbillingAddressContainer').style.display='none';
+    
+    $("input[name='wcpbillingaddress[first_name]']").removeAttr('required');
+    $("input[name='wcpbillingaddress[last_name]']").removeAttr('required');
+    $("input[name='wcpbillingaddress[address1]']").removeAttr('required');
+    $("input[name='wcpbillingaddress[city]']").removeAttr('required');
+    $("input[name='wcpbillingaddress[zip]']").removeAttr('required');
+    
+  } else {
+      document.getElementById('wcpbillingAddressContainer').style.display='block';
+    
+    $("input[name='wcpbillingaddress[first_name]']").attr('required', '');
+    $("input[name='wcpbillingaddress[last_name]']").attr('required', '');
+    $("input[name='wcpbillingaddress[address1]']").attr('required', '');
+    $("input[name='wcpbillingaddress[city]']").attr('required', '');
+    $("input[name='wcpbillingaddress[zip]']").attr('required', '');
+  }
+}
+         
+</script>
+    <div>
+      
+        <form id="net-order-form" class="submit-address">
+      	<h3 class="wpd-shipping-address">Shipping address</h3>
+       	<p class="wpd-available-shipping-msg">Available Shipping address</p>
+      	<select id='AddressSelector' onchange="ChangeAddress()">
+        {% paginate customer.addresses by 200 %} {% for address in customer.addresses %}
+              <option value="{{address.id}}">Address : {{address.city}} : {{address.address1 | truncate:40}}</option>
+          {% endfor %}	  
+          {% endpaginate %}
+      	</select>
+          <div class='extraFiedContainer'>
+              
+                    <input type="text" name="wcpaddress[first_name]" value="{{ customer.default_address.first_name }}" placeholder="First Name *" required>       
+              
+              
+                    <input type="text" name="wcpaddress[last_name]" value="{{ customer.default_address.last_name }}" placeholder="Last Name *" required>      
+              
+              
+                    <input type="text" name="wcpaddress[company]" value="{{ customer.default_address.company }}" placeholder="Company" >      
+              
+              
+                    <input type="text" name="wcpaddress[phone]" value="{{ customer.default_address.phone }}" placeholder="Phone" > 
+              
+              
+                    <input type="text" name="wcpaddress[address1]" value="{{ customer.default_address.address1 }}" placeholder="Address *" required>      
+              
+              
+                    <input type="text" name="wcpaddress[address2]" value="{{ customer.default_address.address2 }}" placeholder="Apartment, suite, etc." >      
+              
+              
+                    <input type="text" name="wcpaddress[city]" value="{{ customer.default_address.city }}" placeholder="City *" required>             
+              
+                    <select id="AddressCountry" name="wcpaddress[country]" data-default="{{ customer.default_address.country }}">{{ country_option_tags }}</select>                    
+              		<div id="AddressProvinceContainer" style="display:none">
+                        <select id="AddressProvince" name="wcpaddress[province]" data-default="{{ customer.default_address.province }}"></select>
+                    </div>                
+                    <input type="text" name="wcpaddress[zip]" value="{{ customer.default_address.zip }}" placeholder="ZIP/Postal code *" autocapitalize="characters" required>     
+              
+          </div>
+        <div id="billingsameasshippingcontainer">
+          <input type="checkbox" checked id="billingsameasshipping" name="billing" value="billing" onclick="billingAddressManager()">
+          <label for="billingsameasshipping"> Billing address is the same as shipping address</label>
+        </div>
+  	
+	<div class='wcpbillingAddressContainer' id='wcpbillingAddressContainer'>
+     <h3 class="wpd-shipping-address">Billing address</h3>      
+     <div class='extraFiedContainer'>
+        
+            <input type="text" name="wcpbillingaddress[first_name]" value="{{ customer.default_address.first_name }}" placeholder="First Name *" >
+        
+            <input type="text" name="wcpbillingaddress[last_name]" value="{{ customer.default_address.last_name }}" placeholder="Last Name *" >
+        
+            <input type="text" name="wcpbillingaddress[company]" value="{{ customer.default_address.company }}" placeholder="Company" >
+        
+            <input type="text" name="wcpbillingaddress[phone]" value="{{ customer.default_address.phone }}" placeholder="Phone" > 
+       
+            <input type="text" name="wcpbillingaddress[address1]" value="{{ customer.default_address.address1 }}" placeholder="Address *" >
+       
+            <input type="text" name="wcpbillingaddress[address2]" value="{{ customer.default_address.address2 }}" placeholder="Apartment, suite, etc." >
+       
+            <input type="text" name="wcpbillingaddress[city]" value="{{ customer.default_address.city }}" placeholder="City *" >
+       
+            <select id="billingAddressCountry" name="wcpbillingaddress[country]" data-default="{{ customer.default_address.country }}">{{ country_option_tags }}</select>
+       
+      		<div id="billingAddressProvinceContainer" style="display:none">
+          		<select id="billingAddressProvince" name="wcpbillingaddress[province]" data-default="{{ customer.default_address.province }}"></select>
+      		</div>       
+            <input type="text" name="wcpbillingaddress[zip]" value="{{ customer.default_address.zip }}" placeholder="ZIP/Postal code *" autocapitalize="characters" >       
+       
+    </div>
+      
+    </div>
+          <button id="wpd-net-place-order" type="submit">Place Order</button>
+    </form>
+  	
+ </div>    
+   
+  </div>   
+    
+  <script>
+    new Shopify.CountryProvinceSelector('billingAddressCountry', 'billingAddressProvince',{ hideElement: 'billingAddressProvinceContainer' });
+    new Shopify.CountryProvinceSelector('AddressCountry', 'AddressProvince',{ hideElement: 'AddressProvinceContainer' });
+  </script>
+{% if shop.metafields.wcp_net.isdisplayDate == 'true' or shop.metafields.wcp_net.isdisplayDate == '1' %}
+<script>
+    var ua = window.navigator.userAgent;
+     if (ua.indexOf("MSIE") > 0 || ua.indexOf("Edge") > 0 || ua.match(/Trident\/7.0/)) // If Internet Explorer, return version number
+    {
+        document.getElementById('datepicker').removeAttribute('readonly');
+      document.getElementById('datepicker').placeholder='Enter a delivery date. Example: ' + new Date().toString().substring(0,15);
+    }else{
+      var field = document.getElementById('datepicker');
+var picker = new Pikaday({
+        field: document.getElementById('datepicker'),
+        minDate: new Date(),
+    });
+field.parentNode.append(picker.el,'');
+    }
+</script>
+{% endif %}
+<style type="text/css">
+  @charset "UTF-8";.pika-single{z-index:9999;display:block;position:relative;color:#333;background:#fff;border:1px solid #ccc;border-bottom-color:#bbb;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}.pika-single:after,.pika-single:before{content:" ";display:table}.pika-single:after{clear:both}.pika-single.is-hidden{display:none}.pika-single.is-bound{position:absolute;box-shadow:0 5px 15px -5px rgba(0,0,0,.5)}.pika-lendar{float:left;width:240px;margin:8px}.pika-title{position:relative;text-align:center}.pika-label{display:inline-block;position:relative;z-index:9999;overflow:hidden;margin:0;padding:5px 3px;font-size:14px;line-height:20px;font-weight:700;background-color:#fff}.pika-title select{cursor:pointer;position:absolute;z-index:9998;margin:0;left:0;top:5px;filter:alpha(opacity=0);opacity:0}.pika-next,.pika-prev{overflow:hidden!important;display:block;cursor:pointer;position:relative;outline:0;border:0;padding:0;width:20px;height:30px;text-indent:20px;white-space:nowrap;background-color:transparent;background-position:center center;background-repeat:no-repeat;background-size:75% 75%;opacity:.5}.pika-next:hover,.pika-prev:hover{opacity:1}.is-rtl .pika-next,.pika-prev{float:left;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAUklEQVR42u3VMQoAIBADQf8Pgj+OD9hG2CtONJB2ymQkKe0HbwAP0xucDiQWARITIDEBEnMgMQ8S8+AqBIl6kKgHiXqQqAeJepBo/z38J/U0uAHlaBkBl9I4GwAAAABJRU5ErkJggg==)}.is-rtl .pika-prev,.pika-next{float:right;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAU0lEQVR42u3VOwoAMAgE0dwfAnNjU26bYkBCFGwfiL9VVWoO+BJ4Gf3gtsEKKoFBNTCoCAYVwaAiGNQGMUHMkjGbgjk2mIONuXo0nC8XnCf1JXgArVIZAQh5TKYAAAAASUVORK5CYII=)}.pika-next.is-disabled,.pika-prev.is-disabled{cursor:default;opacity:.2}.is-disabled .pika-button,.is-outside-current-month .pika-button{opacity:.3;color:#999}.pika-select{display:inline-block}.pika-table{width:100%;border-collapse:collapse;border-spacing:0;border:0}.pika-table td,.pika-table th{width:14.285714285714286%;padding:0}.pika-table th{color:#999;font-size:12px;line-height:25px;font-weight:700;text-align:center}.pika-button{cursor:pointer;display:block;box-sizing:border-box;-moz-box-sizing:border-box;outline:0;border:0;margin:0;width:100%;padding:5px;color:#666;font-size:12px;line-height:15px;text-align:right;background:#f5f5f5}.is-disabled .pika-button,.is-selection-disabled{pointer-events:none;cursor:default}.pika-week{font-size:11px;color:#999}.is-today .pika-button{color:#3af;font-weight:700}.has-event .pika-button,.is-selected .pika-button{color:#fff;font-weight:700;background:#3af;box-shadow:inset 0 1px 3px #178fe5;border-radius:3px}.has-event .pika-button{background:#005da9;box-shadow:inset 0 1px 3px #0076c9}.is-disabled .pika-button,.is-inrange .pika-button{background:#D5E9F7}.is-startrange .pika-button{color:#fff;background:#6CB31D;box-shadow:none;border-radius:3px}.is-endrange .pika-button{color:#fff;background:#3af;box-shadow:none;border-radius:3px}.pika-button:hover,.pika-row.pick-whole-week:hover .pika-button{color:#fff;background:#ff8000;box-shadow:none;border-radius:3px}.pika-table abbr{border-bottom:none;cursor:help}
+</style> 
+{% endif %}

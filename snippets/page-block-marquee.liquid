@@ -1,0 +1,58 @@
+{%- liquid
+  case block.settings.speed
+    when 'fast'
+      assign mobile_speed = 4.6
+      assign desktop_speed = 6
+    when 'normal'
+      assign mobile_speed = 6.6
+      assign desktop_speed = 10
+    when 'slow'
+      assign mobile_speed = 10
+      assign desktop_speed = 15
+  endcase
+-%}
+
+{%- style -%}
+  {% if block.settings.color_scheme == 'button' %}
+    .marquee--{{ block.id }} {
+      background: {{ settings.color_button }};
+      color: {{ settings.color_button_text }};
+    }
+  {% endif %}
+  .marquee--{{ block.id }} .marquee__text {
+    font-size: {{ block.settings.text_size }}px;
+    animation-duration: {{ desktop_speed }}s;
+  }
+  @media screen and (max-width: 768px) {
+    .marquee--{{ block.id }} .marquee__text {
+      font-size: {{ block.settings.text_size | times: 0.6 }}px;
+      animation-duration: {{ mobile_speed }}s;
+    }
+  }
+  {% unless block.settings.text_spacing %}
+    .marquee--{{ section.id }} .marquee__text span {
+      padding: 0;
+    }
+  {% endunless %}
+{%- endstyle -%}
+
+<div class="marquee marquee--{{ block.id }}">
+
+  {%- if block.settings.link != blank -%}
+    <a href="{{ block.settings.link }}">
+  {%- endif -%}
+
+  <div class="marquee__container">
+    <div class="marquee__text marquee__text--{{ block.settings.direction }}">
+      <span>{{ block.settings.text }}</span>
+      <span aria-hidden="true">{{ block.settings.text }}</span>
+      <span aria-hidden="true">{{ block.settings.text }}</span>
+      <span aria-hidden="true">{{ block.settings.text }}</span>
+    </div>
+  </div>
+
+  {%- if block.settings.link != blank -%}
+    </a>
+  {%- endif -%}
+
+</div>

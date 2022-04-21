@@ -1,0 +1,187 @@
+{%- assign tag_limit = 5 -%}
+{%- assign show_button_limit = tag_limit | minus: 1  -%}
+
+{%- if current_tags -%}
+  <div class="page-width">
+    <ul class="no-bullets tag-list tag-list--active-tags text-center">
+      {%- for tag in current_tags -%}
+        {%- assign tag_name = tag | strip -%}
+
+        <li class="tag tag--remove">
+          {{ tag | link_to_remove_tag: tag_name | replace: 'title=', 'class="btn btn--small js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+          <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" viewBox="0 0 64 64"><path d="M19 17.61l27.12 27.13m0-27.12L19 44.74"/></svg>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}
+
+<div class="collection-filter__scrollable" data-aos="overflow__animation__small">
+  {%- for block in section.blocks -%}
+    {%- assign have_extra_tags = false -%}
+
+    <div class="collection-filter__group collection-filter__group--{{ block.id }}" data-type="{{ block.type }}" {{ block.shopify_attributes }}>
+      <div class="collection-filter__inner">
+        {%- if block.type == 'tags_group' -%}
+          {%- liquid
+            assign tags_to_display = false
+            assign split_tag_list = block.settings.tag_list | newline_to_br | split:'<br />'
+            assign tags_to_display = split_tag_list
+          -%}
+
+          {%- if tags_to_display -%}
+            <div class="collection-filter__title">
+              {{ block.settings.title }}
+            </div>
+
+            {%- assign tag_count = 0 -%}
+            <ul class="no-bullets tag-list{% if section.settings.tags_combine %} tag-list--checkboxes{% endif %}">
+
+              {%- liquid
+                assign tags_to_loop = collection.tags
+                if collection.handle == 'all' and current_tags == blank
+                  assign tags_to_loop = collection.all_tags
+                endif
+              -%}
+
+              {%- for tag in tags_to_display -%}
+                {% if tag contains "_" %}{%- assign tag_starts_with = tag | slice: 0 -%}{% if tag_starts_with == "_" %}{% if tag_count %}{%- assign tag_count = tag_count | minus: 1 | at_least: 0 -%}{% endif %}{% continue %}{% endif %}{% endif %}
+                {%- liquid
+                  assign tag_name = tag | strip
+                  assign show_tag = false
+
+                  if section.settings.tags_combine == true and tags_to_loop contains tag_name
+                    assign show_tag = true
+                  elsif section.settings.tags_combine == false and collection.all_tags contains tag_name
+                    assign show_tag = true
+                  endif
+                -%}
+
+                {%- if show_tag -%}
+                  {%- assign tag_count = tag_count | plus: 1 -%}
+
+                  {%- if tag_count == tag_limit -%}
+                    {%- assign have_extra_tags = true -%}
+                    </ul>
+                    <div id="TagList-{{ block.id }}" class="collapsible-content collapsible-content--all">
+                      <ul class="no-bullets tag-list{% if section.settings.tags_combine %} tag-list--checkboxes{% endif %} collapsible-content__inner collapsible-content__inner--no-translate">
+                  {%- endif -%}
+
+                  {%- if current_tags contains tag_name -%}
+                    <li class="tag tag--active">
+                      {{ tag | link_to_remove_tag: tag_name | replace: 'title=', 'class="js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+                    </li>
+                  {%- else -%}
+                    {%- if section.settings.tags_combine -%}
+                      <li class="tag">
+                        {{ tag | link_to_add_tag: tag_name | replace: 'title=', 'class="js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+                      </li>
+                    {%- else -%}
+                      <li class="tag">
+                        {{ tag | link_to_tag: tag_name | replace: 'title=', 'class="js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+                      </li>
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if have_extra_tags -%}
+                </div>
+              {%- endif -%}
+            </ul>
+
+            {%- if tag_count > show_button_limit -%}
+              <button type="button" class="collapsible-trigger collapsible--auto-height collapsible-trigger-btn text-link tags-toggle" aria-controls="TagList-{{ block.id }}">
+                <span class="collapsible-label__closed">{{ 'collections.general.see_more' | t }}</span>
+                <span class="collapsible-label__open">{{ 'collections.general.see_less' | t }}</span>
+              </button>
+            {%- endif -%}
+
+            {%- if tag_count == 0 -%}
+              {%- style -%}
+                .collection-filter__group--{{ block.id }} { display: none; }
+              {%- endstyle -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if block.type == 'color_group' -%}
+          {%- liquid
+            assign swatch_file_extension = 'png'
+            assign split_tag_list = block.settings.tag_list | newline_to_br | split:'<br />'
+            assign tags_to_display = split_tag_list
+          -%}
+
+          {%- if tags_to_display -%}
+            <div class="collection-filter__title">
+              {{ block.settings.title }}
+            </div>
+
+            <ul class="no-bullets tag-list tag-list--swatches">
+              {%- liquid
+                assign tag_count = 0
+                assign tags_to_loop = collection.tags
+                if collection.handle == 'all' and current_tags == blank
+                  assign tags_to_loop = collection.all_tags
+                endif
+              -%}
+
+              {%- for tag in tags_to_display -%}
+                {% if tag contains "_" %}{%- assign tag_starts_with = tag | slice: 0 -%}{% if tag_starts_with == "_" %}{% if tag_count %}{%- assign tag_count = tag_count | minus: 1 | at_least: 0 -%}{% endif %}{% continue %}{% endif %}{% endif %}
+                {%- liquid
+                  assign tag_name = tag | strip
+                  assign show_tag = false
+
+                  if section.settings.tags_combine == true and tags_to_loop contains tag_name
+                    assign show_tag = true
+                  elsif section.settings.tags_combine == false and collection.all_tags contains tag_name
+                    assign show_tag = true
+                  endif
+                -%}
+
+                {%- if show_tag -%}
+                  {%- liquid
+                    assign tag_count = tag_count | plus: 1
+                    assign color_image = tag_name | handle | append: '.' | append: swatch_file_extension | asset_img_url: '50x' | prepend: 'https:' | split: '?' | first
+                    assign color_swatch_fallback = tag_name | split: ' ' | last | handle
+                  -%}
+
+                  {% capture swatch %}
+                    <span
+                      class="color-swatch color-swatch--filter color-swatch--{{ tag_name | handle }}"
+                      style="background-image: url({{ color_image }}); background-color: {{ color_swatch_fallback }};">
+                      {{ tag }}
+                    </span>
+                  {% endcapture %}
+
+                  {%- if current_tags contains tag_name -%}
+                    <li class="tag tag--active">
+                      {{ swatch | link_to_remove_tag: tag_name | replace: 'title=', 'class="js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+                    </li>
+                  {%- else -%}
+                    {%- if section.settings.tags_combine -%}
+                      <li class="tag">
+                        {{ swatch | link_to_add_tag: tag_name | replace: 'title=', 'class="js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+                      </li>
+                    {%- else -%}
+                      <li class="tag">
+                        {{ swatch | link_to_tag: tag_name | replace: 'title=', 'class="js-no-transition" title=' | replace: '?view=ajax', '' | replace: 'view=ajax', '' }}
+                      </li>
+                    {%- endif -%}
+                  {%- endif -%}
+
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+
+            {%- if tag_count == 0 -%}
+              {%- style -%}
+                .collection-filter__group--{{ block.id }} { display: none; }
+              {%- endstyle -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endfor -%}
+</div>

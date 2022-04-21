@@ -1,0 +1,150 @@
+{%- liquid
+  assign header_font = settings.type_header_font_family
+  assign base_font = settings.type_base_font_family
+  assign base_font_bold = base_font | font_modify: 'weight', 'bolder'
+  assign base_font_italic = base_font | font_modify: 'style', 'italic'
+  assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic'
+-%}
+
+<style>
+  {{ header_font | font_face: font_display: 'swap' }}
+  {{ base_font | font_face: font_display: 'swap' }}
+
+  {{ base_font_bold | font_face: font_display: 'swap' }}
+  {{ base_font_italic | font_face: font_display: 'swap' }}
+  {{ base_font_bold_italic | font_face: font_display: 'swap' }}
+
+  body,
+  input,
+  textarea,
+  button,
+  select {
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeSpeed;
+    font-family: var(--typeBasePrimary), var(--typeBaseFallback);
+    font-size: calc(var(--typeBaseSize) * 0.85);
+    font-weight: var(--typeBaseWeight);
+    font-style: var(--typeBaseStyle);
+    letter-spacing: var(--typeBaseSpacing);
+    line-height: var(--typeBaseLineHeight);
+  }
+
+  @media only screen and (min-width: 769px) {
+    body,
+    input,
+    textarea,
+    button,
+    select {
+      font-size: var(--typeBaseSize);
+    }
+  }
+
+  .page-container {
+    display: none;
+  }
+
+  h1, .h1,
+  h3, .h3,
+  h4, .h4,
+  h5, .h5,
+  h6, .h6,
+  .section-header__title,
+  .spr-header-title.spr-header-title {
+    font-family: var(--typeHeaderPrimary), var(--typeHeaderFallback);
+    font-weight: var(--typeHeaderWeight);
+    font-style: {{ settings.type_header_font_family.style }};
+    letter-spacing: var(--typeHeaderSpacing);
+    line-height: var(--typeHeaderLineHeight);
+    word-break: break-word;
+
+    {% if settings.type_header_capitalize %}
+      text-transform: uppercase;
+    {% endif %}
+  }
+
+  h2, .h2 {
+    font-family: var(--typeBasePrimary), var(--typeBaseFallback);
+    font-weight: var(--typeBaseWeight);
+    letter-spacing: var(--typeBaseSpacing);
+    line-height: var(--typeBaseLineHeight);
+  }
+
+  {% comment %}
+    Splash screen logo and animation
+  {% endcomment %}
+  @keyframes pulse-fade {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .splash-screen {
+    box-sizing: border-box;
+    display: flex;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    background-color: {{ settings.color_body_bg | default: '#fff' }};
+  }
+
+  .splash-screen__loader {
+    max-width: {{ settings.mobile_loader_width }}px;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .splash-screen__loader {
+      max-width: {{ settings.desktop_loader_width }}px;
+    }
+  }
+
+  .splash-screen img {
+    display: block;
+    max-width: 100%;
+    border: 0 none;
+    animation: pulse-fade 0.4s infinite linear;
+  }
+
+  .loader-text {
+    letter-spacing: 0.2em;
+    font-size: 1.5em;
+    text-transform: uppercase;
+    animation: pulse-fade 0.4s infinite linear;
+  }
+
+  .loader-logo {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ settings.color_body_bg }};
+    z-index: 6000;
+  }
+
+  .loader-logo__img {
+    display: block;
+  }
+
+  .transition-body {
+    opacity: 0;
+  }
+
+  .btn--loading span:after {
+    content: "{{ 'general.accessibility.loading' | t }}";
+  }
+</style>
