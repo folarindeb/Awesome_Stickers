@@ -1,0 +1,12 @@
+<div class="powr-countdown-timer" id="151ad54a_1622596573"></div> {% section 'product-template' %}
+{% section 'product-sections' %}
+{% section 'product-recommendations' %}
+
+{%- if collection -%}
+  <div class="text-center">
+    <a href="{{ collection.url }}" class="btn btn--tertiary">
+      &xlarr; {{ 'products.general.collection_return' | t: collection: collection.title }}
+    </a>
+  </div>
+<script src="https://widget.sezzle.com/v1/javascript/price-widget?uuid=12a34bc5-6de7-890f-g123-4hi5678jk901"></script>
+{%- endif -%}

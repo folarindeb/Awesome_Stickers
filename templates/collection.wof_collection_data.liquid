@@ -1,0 +1,198 @@
+{% layout none %}
+{% assign current_count = 0 %}
+{% assign productLimit = 40 %}
+{% capture wof_product_check %}{% include 'wof_product_limit' %}{% endcapture %}
+
+{% paginate collection.products by productLimit  %}
+{% assign CountTotal = collection.products_count %}
+{% assign custom_tags = true %}
+
+
+{% capture output %}
+{
+	"totalProductCount" : "{{CountTotal}}",
+	"currentPageNumber": "{{paginate.current_page}}",
+	"totalPages": "{{paginate.pages}}",
+    "productItems":
+        [
+            {% for item in collection.products %}
+
+				
+ 				{% capture wlm_check %}{% include 'wlm-product' with item %}{% endcapture %}
+                {% unless wlm_check contains "Liquid error" %}
+                {% include 'wlm-product' with item %}
+                {% endunless %}
+
+				{% assign current_count = current_count | plus: 1 %}
+
+                {% assign customer_tags_value = item.metafields.Webuick.hide_customer_es_tags %}
+                {% assign visibility = item.metafields.quick.products %}
+                {% assign customer_tags_array = item.metafields.Webuick.hide_customer_es_tags | split: ',' %}
+                {% assign isShowTo = shop.metafields.wof_show_hide.show_hide %}
+                {% if isShowTo == 'show_to' %} 	
+                {% assign showProduct = false %}
+                {% else %}
+                {% assign showProduct = true %}
+                {% endif  %}
+
+                {% case visibility %}
+
+                  {% when "show_es_products_app" %}
+
+                     {% if customer_tags_value != blank %}
+
+                        {% for customer_tag_value in customer_tags_array %}		
+
+
+                            {% assign customer_tag = customer_tag_value | downcase | strip %}
+                            {% for tag_value in customer.tags %}
+                                {% assign tag = tag_value | downcase | strip %}		
+                                {% if tag == customer_tag %} 
+                                    {% if isShowTo == 'show_to' %} 	
+                                        {% assign showProduct = true %}
+                                    {% else %}
+                                        {% assign showProduct = false %}
+                                    {% endif  %}		
+                                    {% continue %}
+                                {% endif  %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        {% assign showProduct = true %}           
+                    {% endif %}
+
+                {% when "hide_es_products_app" %}
+
+                     {% assign showProduct = false %}
+
+                  {% when "guest_user" %}
+
+                     {% unless customer %}
+                        {% assign showProduct = false %}
+                     {% else %}
+                        {% assign showProduct = true %}
+                     {% endunless %}
+
+					{% else %}
+
+					{% if customer_tags_value != blank %}
+
+                        {% for customer_tag_value in customer_tags_array %}		
+
+                            {% assign customer_tag = customer_tag_value | downcase | strip %}
+                            {% for tag_value in customer.tags %}
+                                {% assign tag = tag_value | downcase | strip %}		
+                                {% if tag == customer_tag %} 
+                                    {% if isShowTo == 'show_to' %} 	
+                                        {% assign showProduct = true %}
+                                    {% else %}
+                                        {% assign showProduct = false %}
+                                    {% endif  %}		
+                                    {% continue %}
+                                {% endif  %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        {% assign showProduct = true %}           
+                    {% endif %}
+
+                {% endcase %}
+
+
+
+                {% if showProduct == true %}  
+ 
+				{% assign WPDVdTable = '' %}
+				{% assign productMinPrice = item.price_min | money %}
+				{% assign productMaxPrice = item.price_max | money %}
+
+				{% capture wpd_check %}{% include 'wcp_discount' with item %}{% endcapture %}
+ 				{% unless wpd_check contains "Liquid error" %}
+				
+                	{% include 'wcp_variant' with item.selected_or_first_available_variant %}
+                	{% include 'wcp_vd_product' with item %}
+
+					{% assign WPDVdTable = wcp_vd_HTML_table %}
+					{% assign productMinPrice = wcp_price_min | money %}
+					{% assign productMaxPrice = wcp_price_max | money %}
+
+                {% endunless %}          
+                
+
+
+                {% assign resultURL = item.url %}
+                {% assign thumbURL = item.images[0] | product_img_url: 'thumb' %}	
+                {% assign mediumImage = item.images[0] | product_img_url: 'medium' %}
+
+                {
+					"WPDVdTable":{{ WPDVdTable | json }},
+					"minMaxIncrement": "{{ item.metafields.spofSteps.spofqty }}"
+				    ,"meta": "{{ item.metafields.quick.products }}"
+				    ,"productId": "{{item.id}}"
+					,"productHandle": {{item.handle | json }}
+                    ,"color":{{ item.options | json }}
+					,"option1":{{ item.options[0] | json }}
+					,"option2":{{ item.options[1] | json }}
+					,"option3":{{ item.options[2] | json }}
+					,"productTitle":{{ item.title | json }}
+                    ,"productMinPrice":{{ productMinPrice | json }}
+                    ,"productMaxPrice":{{ productMaxPrice | json }}
+                    ,"productDescription":{{ item.description | json }}
+					,"productImages" : [{% for image in item.images %}{ "src":"{{ image | product_img_url: 'large' }}"}{% unless forloop.last %},{% endunless %} {% endfor %}]
+                    ,"productMediumImages" : [{"med_img_src" : {{ mediumImage | json }}}]
+					,"productVendor":{{ item.vendor | json }}
+					,"productType":{{ item.type | json}}
+					,"productVariants":
+					[
+						{% for variant in item.variants %}
+							{ 
+                                
+                                {% assign variantPrice = variant.price | money %}
+                                {% assign variantCompareAtPrice = variant.compare_at_price | money %}
+                                {% assign variantRawPrice = variant.price %}
+                                {% assign variantRawCompareAtPrice = variant.compare_at_price %}
+
+                                {% capture wpd_check %}{% include 'wcp_variant' with variant %}{% endcapture %}
+								{% unless wpd_check contains "Liquid error" %}
+                                
+                                  {% assign variantCompareAtPrice = wcp_v_compare_at_price | money %}
+                                  {% assign variantPrice = wcp_v_price | money %}
+                                  {% assign variantRawPrice = wcp_v_price %}
+                                  {% assign variantRawCompareAtPrice = wcp_v_compare_at_price %}
+
+                                {% endunless %}  
+
+                                {% assign variantThumbURL = variant.image.src | product_img_url: 'thumb' %}
+
+								 "variantId":"{{variant.id}}"
+                                 ,"variantBarcode":{{variant.barcode | json }}
+								 ,"variantWidth":"{{variant.weight | weight_with_unit }}"
+								 ,"variantNextIncomingDate":"{{variant.next_incoming_date}}"
+                                 ,"variantOption1":{{ variant.option1 | json }}
+                                 ,"variantOption2":{{ variant.option2 | json }}
+                                 ,"variantOption3":{{ variant.option3 | json }}
+								 ,"variantSku":{{ variant.sku | json }}
+ 								 ,"variantTitle":{{ variant.title | json }}
+								 ,"variantPrice":{{ variantPrice | json }}
+								 ,"variantRawPrice":"{{variantRawPrice}}"
+								 ,"variantCompareAtPrice":{{ variantCompareAtPrice | json }}
+								 ,"variantRawCompareAtPrice":"{{variantRawCompareAtPrice}}"
+								 ,"variantInventoryManagement":"{{variant.inventory_management}}"
+								 ,"variantInventoryPolicy":"{{variant.inventory_policy}}"
+								 ,"variantInventoryQuantity":"{{variant.inventory_quantity}}"
+                                 ,"variantImg": [{ "variantImages": {{ variantThumbURL | json }}}]
+							}
+						{% unless forloop.last %},{% endunless %}
+						{% endfor %}
+
+					]
+                },
+          
+               {% endif %}
+            {% endfor %}
+{}
+        ]
+}
+{% endcapture %}
+{% endpaginate %}
+{{ output | strip_newlines }}

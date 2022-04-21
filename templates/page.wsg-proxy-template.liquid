@@ -1,0 +1,193 @@
+<script>
+  /**
+   * Get content by URL and append it to the DOM
+   * @param {String} method
+   * @param {String} url
+   * @param {String} appendTo
+  **/
+  function appendContent(method, url, appendTo) {
+    return new Promise(function (resolve, reject) {
+      let xhr = new XMLHttpRequest();
+      xhr.open(method, url);
+      xhr.onload = function () {
+        if (this.status >= 200 && this.status < 300) {
+          document.getElementById(appendTo).innerHTML = this.responseText;
+          nodeScriptReplace(document.getElementById(appendTo));
+          return resolve(true);
+        } else {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        }
+      };
+      xhr.send();
+    });
+  }
+
+  function nodeScriptReplace(node) {
+    if (nodeScriptIs(node) === true) {
+      node.parentNode.replaceChild(nodeScriptClone(node), node);
+    }
+    else {
+      var i = -1, children = node.childNodes;
+      while (++i < children.length ) {
+        nodeScriptReplace( children[i] );
+      }
+  }
+    return node;
+  }
+
+  function nodeScriptClone(node){
+    var script  = document.createElement("script");
+    script.text = node.innerHTML;
+
+    var i = -1, attrs = node.attributes, attr;
+    while ( ++i < attrs.length ) {
+      script.setAttribute( (attr = attrs[i]).name, attr.value );
+    }
+    return script;
+  }
+
+  function nodeScriptIs(node) {
+    return node.tagName === 'SCRIPT';
+  }
+</script>
+
+{% assign wsgUrl = page.url | split:"/" | last %}
+{% case wsgUrl %}
+  {% when 'ws-account-create' %}
+    <div id="wsg-account-create" class='wsg-proxy-container'></div>
+
+    <script>
+      wsgRunSignup = true;
+      wsgRunProxy = true;
+
+      async function doAjax() {
+        // await code here
+        await appendContent("GET", "/a/wsg/proxy/ws-account-create", "wsg-account-create");
+        setTexts();
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        doAjax();
+      });
+
+      function setTexts() {
+        document.getElementById('wsg-title').innerHTML = `{{ page.title }}`;
+        if (`{{ page.content }}`.indexOf('wsg-hide') === -1) {
+          document.getElementById('wsg-account-create-message').innerHTML = `{{ page.content }}`;
+        }
+      }
+    </script>
+
+  {% when 'ws-account-login' %}
+    <div id="wsg-login" class='wsg-proxy-container'></div>
+
+    <script>
+      async function doAjax() {
+        // await code here
+        await appendContent("GET", "/a/wsg/proxy/ws-account-login", "wsg-login");
+        setTexts();
+
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        doAjax();
+      });
+      
+      function setTexts() {
+        document.getElementById('wsg-title').innerHTML = `{{ page.title }}`;
+        if (`{{ page.content }}`.indexOf('wsg-hide') === -1) {
+          document.getElementById('wsg-login-desc').innerHTML = `{{ page.content }}`;
+        }
+      }
+    </script>
+
+  {% when 'ws-quick-order-form' %}
+    <div id="wsg-quick-order-form" class='wsg-proxy-container'></div>
+    <script>
+      //includes polyfill
+      if (!String.prototype.includes) {
+        String.prototype.includes = function(search, start) {
+          'use strict';
+          if (typeof start !== 'number') {
+            start = 0;
+          }
+
+          if (start + search.length > this.length) {
+            return false;
+          } else {
+            return this.indexOf(search, start) !== -1;
+          }
+        };
+      }
+
+      var wsgRunSinglePageV2 = true;
+      wsgRunProxy = true;
+      var wsgProdArraySP = [];
+      var wsgProdIndex = 0;
+      var wsgDataSPTemp;
+      var wsgCartItems = {{ cart.items | json}}
+
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlSearchParams.entries());
+      const qs = new URLSearchParams(params).toString();
+      let reqUrl = '/a/wsg/proxy/ws-quick-order-form';
+      if(qs) reqUrl += '?' + qs;
+
+      var wsgCollectionId = params.id || 0 //current collection id
+      var wsgPage = params.page || 1; //index of current page in product loop pagination
+
+      document.addEventListener('DOMContentLoaded', async function () {
+        await appendContent('GET', reqUrl, 'wsg-quick-order-form');
+        setTexts();
+      })
+
+      function setTexts() {
+        document.getElementById('wsg-title').innerHTML = `{{ page.title }}`;
+        if (`{{ page.content }}`.indexOf('wsg-hide') === -1) {
+          document.getElementById('wsg-quick-order-message').innerHTML = `{{ page.content }}`;
+        }
+      }
+    </script>
+
+  {% when 'ws-cart' %}
+    <!-- WSG CUSTOM create json of stock data -->
+    {% capture wsgStockData %}{% for item in cart.items %}"{{item.id}}":{"stock":{{item.variant.inventory_quantity}},"policy":"{{item.variant.inventory_policy}}", "shipDate":"{{ item.variant.next_incoming_date | date: "%m/%d" }}" },{% endfor %}{% endcapture %}
+    <!-- END WSG CUSTOM -->
+
+    <div id="wsg-cart" class='wsg-proxy-container'></div>
+    <script>
+      var wsgCurrency = "{{ shop.currency }}";
+      //declare cart specific liquid variables
+      var wsgCustomerId = {{customer.id | json}};
+      var wsgCustomerAddresses = {{customer.addresses | json}};
+
+      var wsgCart = {{cart | json}};
+      var wsgShopCountry = {{shop.address.country | json}};
+      wsgRunCart = true;
+      wsgRunProxy = true;
+      var wsgStockData = {{wsgStockData | json}};
+      var wsgShopLang = "{{request.locale.iso_code }}";
+
+      document.addEventListener('DOMContentLoaded', async function () {
+        await appendContent('GET', '/a/wsg/proxy/cart', 'wsg-cart');
+      })
+    </script>
+  {% when 'ws-proxy' %}
+    <div id='wsg-proxy-content' class='wsg-proxy-container'></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', async function () {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        let proxyUrl = urlParams.get('proxyUrl');
+        if(!proxyUrl) return;
+
+        const params = Object.fromEntries(urlParams.entries());
+        const qs = new URLSearchParams(params).toString();
+        if(qs) proxyUrl += '?' + qs; 
+
+        // await code here
+        await appendContent('GET', proxyUrl, 'wsg-proxy-content');
+      });
+    </script>
+{% endcase %}

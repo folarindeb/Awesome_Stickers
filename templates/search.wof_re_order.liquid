@@ -1,0 +1,68 @@
+{% layout none %}
+{% assign customer_login = false %}
+{% if customer %}{% assign customer_login = true %}{% endif %}
+
+{% assign orderId = search.terms | minus : 0 %}
+
+{% paginate customer.orders by 20 %}
+{% capture output %}
+{
+"isCustomerLogin":"{{customer_login}}",
+"orders":[
+{% for order in customer.orders %}
+
+{% if orderId == 0 or orderId == order.order_number %}
+{% assign orderTotalQuantity = 0 %}
+           {
+     				"orderNumber":"{{order.order_number}}"
+					,"orderName":{{ order.name | json }}
+					,"orderDate":"{{order.created_at | date: "%d %b %Y" }}"
+					,"orderTotalItems":"{{order.line_items | size}}"
+					,"orderPaymentStatus":"{{order.financial_status}}"
+					,"orderFulfillmentStatus":"{{order.fulfillment_status}}"					
+					,"orderDetails":
+					[
+						 {% for line_item in order.line_items %}
+
+							{% capture wlm_check %}{% include 'wlm-product' with line_item.product %}{% endcapture %}
+                			{% if wlm_check !='Liquid error: Could not find asset snippets/wlm-product.liquid' %}
+                			{% include 'wlm-product' with line_item.product %}
+                			{% endif %}
+							{% assign orderTotalQuantity = orderTotalQuantity | plus: line_item.quantity %}
+							{% assign price = line_item.variant.price | money %}
+							{ 
+ 								 "id":"{{line_item.variant.id}}"	
+								 ,"variantBarcode":{{line_item.variant.barcode | json }}							 
+                                 ,"quantity":"{{line_item.quantity}}"
+								 ,"productName":{{ line_item.title | json }}
+								 ,"variantName":{{ line_item.variant.title | json }}
+								 ,"image":"{{ line_item.image.src | product_img_url: 'medium' }}"
+								 ,"price":{{ price | json }}
+								 ,"rowPrice":"{{line_item.variant.price}}"
+								 ,"sku":{{ line_item.variant.sku | json }}
+								 ,"productId":"{{ line_item.product_id }}"
+								 ,"productVendor":{{ line_item.product.vendor | json }}
+								 ,"productType":{{ line_item.product.type | json }}
+								,"inventoryManagement":"{{line_item.variant.inventory_management}}"
+								,"inventoryPolicy":"{{line_item.variant.inventory_policy}}"
+                            	,"inventoryQuantity":"{{line_item.variant.inventory_quantity}}"
+								,"width":"{{line_item.variant.weight | weight_with_unit }}"
+								,"nextIncomingDate":"{{line_item.variant.next_incoming_date}}"
+							},							
+						{% endfor %}					
+					{}],
+					"orderTotalQuantity":"{{orderTotalQuantity}}"},
+{% endif %}
+{% endfor %}
+{}
+]}
+{% endcapture %}
+{% endpaginate %}
+{% unless customer %}
+{% capture output %}
+{
+"customer_login":"{{customer_login}}"
+}
+{% endcapture %}
+{% endunless %}
+{{ output | strip_newlines }}
